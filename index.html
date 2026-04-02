@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinaMente - Consola Demo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="hp-bar" class="hidden">
+        <span class="label">Status:</span> 
+        <span id="hp-value">HP: $0</span>
+        <span class="label">| TDC:</span> <span id="saldo-value">$0</span>
+        <span class="label">| P. Mínimo:</span> <span id="pago-minimo-value">$0</span>
+        <span class="label">| P. No Intereses:</span> <span id="pago-no-intereses-value">$0</span>
+        <span class="label">| Score:</span> <span id="score-value">0</span>
+        <span class="label">| Stage:</span> <span id="stage-value">0</span>
+        <span class="label">| Semana:</span> <span id="semana-value">0</span>
+    </div>
+    <div id="console-container">
+        <div id="output"></div>
+        <div id="input-line">
+            <span id="prompt-symbol">></span>
+            <input type="text" id="command-input" autocomplete="off" autofocus>
+        </div>
+    </div>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

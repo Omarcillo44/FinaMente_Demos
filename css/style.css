@@ -1,0 +1,72 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #0d0d0d;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#hp-bar {
+    background-color: #1a1a1a;
+    border-bottom: 2px solid #005500;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    gap: 15px;
+}
+
+#hp-bar.hidden {
+    display: none;
+}
+
+.label {
+    color: #aaaaaa;
+}
+
+#console-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#output {
+    flex-grow: 1;
+}
+
+.line {
+    margin: 5px 0;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+.line.system { color: #aaaaaa; }
+.line.error { color: #ff3333; }
+.line.warning { color: #ffcc00; }
+.line.prompt { color: #00ff00; }
+.line.user-input { color: #ffffff; font-weight: bold; }
+.line.info { color: #00ffff; }
+
+#input-line {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+#prompt-symbol {
+    margin-right: 10px;
+}
+
+#command-input {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 1rem;
+    flex-grow: 1;
+    outline: none;
+}
