@@ -87,6 +87,10 @@ export const perfilesConfig = {
     }
 };
 
+/*
+Estática porque no necesita instanciarse, sólo busca en los enums
+y los devuelve
+*/
 export class ConfigPerfil {
     static get(perfilEnum) {
         return perfilesConfig[perfilEnum];

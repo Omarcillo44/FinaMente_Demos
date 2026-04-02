@@ -14,17 +14,17 @@ export class Jugador {
     }
 
     actualizarIngreso(nuevoIngreso) {
-        // Se llama al inicio del stage 2 en adelante para ESPORADICO, u otros
+        // Se llama al inicio del stage 2 en adelante para ingresos esporádicos, u otros
         this.ingresoMensual = nuevoIngreso;
         this.efectivoDisponible += nuevoIngreso; // Cada mes recibe su ingreso
     }
 
     pagarConDebito(monto) {
-        if (this.efectivoDisponible >= monto) {
+        if (this.efectivoDisponible >= monto) { //¿El efectivo alcanza?
             this.efectivoDisponible -= monto;
-            return true;
+            return true; //Sí
         }
-        return false;
+        return false; //No
     }
 
     comprarConTDC(monto) {
@@ -32,13 +32,15 @@ export class Jugador {
     }
 
     pagarDeudaTDC(monto) {
-        if (this.pagarConDebito(monto)) {
+        //Se reutiliza el método pagarConDebito
+        if (this.pagarConDebito(monto)) { //¿Le alcanza para pagar la tarjeta?
             this.tarjeta.recibirPago(monto);
             return true;
         }
         return false;
     }
 
+    //¿Se mueve al motor?
     modificarScore(puntos) {
         this.scoreCrediticio += puntos;
         if (this.scoreCrediticio > 100) this.scoreCrediticio = 100;

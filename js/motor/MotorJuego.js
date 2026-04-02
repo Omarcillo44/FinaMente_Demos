@@ -8,19 +8,19 @@ import { GastoGusto } from './Gasto.js';
 export class MotorJuego {
     constructor(consola) {
         this.consola = consola;
-        this.jugador = null;
-        this.config = null;
-        this.stageActual = 1;
-        this.semanaActual = 1;
-        this.estadoJuego = EstadoJuegoEnum.EN_CURSO;
-        this.ventanaPago = VentanaPagoEnum.EXPIRADA;
-        
-        this.gastosSemana = []; // tracking
+        this.jugador = null; //Se determina luego por el usuario
+        this.config = null; //Se determina luego por el usuario
+        this.stageActual = 1; //Mes
+        this.semanaActual = 1; //Semana
+        this.estadoJuego = EstadoJuegoEnum.EN_CURSO; //Estado del juego
+        this.ventanaPago = VentanaPagoEnum.EXPIRADA; //¿Se puede pagar o no la TDC?
+
+        this.gastosSemana = []; // logs
     }
 
     async inicializarJugador(perfilEnum) {
         this.config = ConfigPerfil.get(perfilEnum);
-        
+
         let ingresoInicial;
         if (perfilEnum === PerfilEnum.ESPORADICO) {
             ingresoInicial = this.config.ingresoStage1;
@@ -33,7 +33,7 @@ export class MotorJuego {
 
         const limiteInicial = GeneradorAleatorio.generarLimiteInicial(this.config);
         const tarjeta = new TarjetaCredito(limiteInicial, this.config);
-        
+
         this.jugador = new Jugador(perfilEnum, ingresoInicial, tarjeta);
 
         this.actualizarUIHeaders();
@@ -48,13 +48,13 @@ export class MotorJuego {
         const hp = this.jugador.calcularHP();
         const pagoNoIntereses = this.jugador.tarjeta.saldoInsoluto + (this.jugador.tarjeta.interesesGenerados * 1.16);
         this.consola.updateHeader(
-            hp, 
-            this.jugador.tarjeta.calcularPagoMinimo(), 
+            hp,
+            this.jugador.tarjeta.calcularPagoMinimo(),
             pagoNoIntereses,
             this.jugador.tarjeta.saldoInsoluto,
             this.jugador.tarjeta.limiteCredito,
             this.jugador.scoreCrediticio,
-            this.stageActual, 
+            this.stageActual,
             this.semanaActual
         );
     }
@@ -79,12 +79,12 @@ export class MotorJuego {
         while (this.stageActual <= 6 && this.estadoJuego === EstadoJuegoEnum.EN_CURSO) {
             await this.iniciarStage();
             if (this.estadoJuego === EstadoJuegoEnum.GAME_OVER) break;
-            
+
             // Fin de stage
             this.consola.print(`\n--- FIN DEL STAGE ${this.stageActual} ---`, 'info');
             this.consola.print(`Corte de Tarjeta: Se calculan intereses si aplica.`);
-            this.jugador.tarjeta.cerrarMes(); // Se generan intereses de lo que quedó de saldo
-            
+            this.jugador.tarjeta.generarIntereses(); // Se generan intereses de lo que quedó de saldo
+
             // Evaluar score
             const usoCredito = this.jugador.tarjeta.saldoInsoluto / this.jugador.tarjeta.limiteCredito;
             if (usoCredito < 0.60) {
@@ -96,7 +96,7 @@ export class MotorJuego {
                 this.jugador.modificarScore(-5);
                 this.consola.print(`>>> Score actualizado a: ${this.jugador.scoreCrediticio} pts <<<`, 'user-input');
             }
-            
+
             // Abriendo ventana de pago para el siguiente stage (en las semanas 1 y 2)
             if (this.stageActual < 6) {
                 this.ventanaPago = VentanaPagoEnum.ABIERTA;
@@ -106,7 +106,7 @@ export class MotorJuego {
                 this.consola.print("¡Es Stage 6, recuento final!");
                 await this.manejarVentanaDePago(); // Forzar en S6
             }
-            
+
             this.stageActual++;
             await this.consola.sleep(1500);
         }
@@ -145,9 +145,9 @@ export class MotorJuego {
             this.consola.print(`\n========================================`, 'info');
             this.consola.print(`|        STAGE ${this.stageActual}  -  SEMANA ${this.semanaActual}         |`, 'user-input');
             this.consola.print(`========================================\n`, 'info');
-            
+
             this.gastosSemana = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual);
-            
+
             if (this.gastosSemana.length === 0) {
                 this.consola.print("Una semana tranquila. No hubo gastos.", "system");
             }
@@ -157,7 +157,7 @@ export class MotorJuego {
                 await this.procesarGasto(gasto);
                 this.actualizarUIHeaders();
                 if (await this.evaluarGameOver()) return; // Corta ejecución aquí
-                
+
                 // Cierre de ventana de pago al FINAL de la semana 2 si hay pago pendiente
                 if (this.semanaActual === 2 && i === this.gastosSemana.length - 1 && this.ventanaPago === VentanaPagoEnum.ABIERTA) {
                     await this.manejarVentanaDePago();
@@ -192,13 +192,13 @@ export class MotorJuego {
             this.consola.print(`- Pago Mínimo Requerido: $${pagoMinimo.toFixed(2)}`);
             this.consola.print(`EFECTIVO DISPONIBLE: $${this.jugador.efectivoDisponible.toFixed(2)}`, 'info');
 
-            const pagoRequiereMonto = function(monto) {
+            const pagoRequiereMonto = function (monto) {
                 return (this.jugador.efectivoDisponible >= monto);
             }.bind(this);
 
             let opciones = [];
             let msgs = [];
-            
+
             if (pagoRequiereMonto(pagoMinimo)) {
                 opciones.push('1');
                 msgs.push(`[1] Pagar Mínimo ($${pagoMinimo.toFixed(2)})`);
@@ -212,7 +212,7 @@ export class MotorJuego {
 
             this.consola.print(msgs.join('  |  '));
             let eleccion;
-            while(true) {
+            while (true) {
                 eleccion = await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
                 break;
             }
@@ -256,16 +256,16 @@ export class MotorJuego {
     async procesarGasto(gasto) {
         this.consola.print(`\n[¡GASTO!] Te enfrentas a un pago: ${gasto.nombre}`);
         this.consola.print(`Categoría: ${gasto.categoria} | Monto: $${gasto.monto.toFixed(2)}`);
-        
+
         let opciones = [];
         let descP = [];
-        
+
         // Evaluar debit
         if (this.jugador.efectivoDisponible >= gasto.monto) {
             opciones.push('d');
             descP.push('d: Débito / Efectivo');
         }
-        
+
         if (this.jugador.tarjeta.creditoDisponible >= gasto.monto) {
             opciones.push('t');
             descP.push('t: Tarjeta Credito');
@@ -282,20 +282,21 @@ export class MotorJuego {
         }
 
         if (opciones.length === 0) {
-            // El jugador se quedó sin opciones para pasar el gasto.
-            // Si el hp ya era 0, esto significa Game Over
-            this.consola.print(`¡No tienes ni efectivo ni crédito para cubrir este gasto! Se te acumulará a tu deuda indirectamente (Game Over inminente).`, 'error');
-            // Forzar cargo normal con saldo en contra
-            this.jugador.tarjeta.creditoDisponible -= gasto.monto;
-            this.jugador.tarjeta.saldoInsoluto += gasto.monto;
+            this.consola.print(`¡No tienes efectivo ni crédito suficiente para cubrir este gasto obligatorio!`, 'error');
+            this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
+            this.consola.print('\n====================================', 'error');
+            this.consola.print('!!!!!!! GAME OVER !!!!!!!', 'error');
+            this.consola.print('Te has quedado sin liquidez (insolvencia total).', 'error');
+            this.consola.print('No puedes enfrentar una responsabilidad financiera básica.', 'error');
+            this.consola.print('====================================\n', 'error');
             return;
         }
 
         this.consola.print(`Efectivo: $${this.jugador.efectivoDisponible.toFixed(2)} | Crédito: $${this.jugador.tarjeta.creditoDisponible.toFixed(2)}`);
         this.consola.print(`¿Con qué pagas? -> ${descP.join(' | ')}`);
-        
+
         const decision = await this.consola.prompt('Elige: ', opciones);
-        
+
         if (decision === 'p') {
             await this.manejarVentanaDePago();
             // Volver a preguntar por el gasto actual recursivamente, 

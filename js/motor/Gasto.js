@@ -8,9 +8,9 @@ export class Gasto {
     }
 }
 
-export class GastoRecurrente extends Gasto {}
-export class GastoBasico extends Gasto {}
-export class GastoSorpresa extends Gasto {}
+export class GastoRecurrente extends Gasto { }
+export class GastoBasico extends Gasto { }
+export class GastoSorpresa extends Gasto { }
 
 export class GastoGusto extends Gasto {
     ignorar() {
