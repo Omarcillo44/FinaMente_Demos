@@ -4,6 +4,7 @@ import { TarjetaCredito } from './TarjetaCredito.js';
 import { Jugador } from './Jugador.js';
 import { GeneradorAleatorio } from './GeneradorAleatorio.js';
 import { GastoGusto } from './Gasto.js';
+import { GestorSinergias } from './GestorSinergias.js';
 
 export class MotorJuego {
     constructor(vista) {
@@ -139,7 +140,13 @@ export class MotorJuego {
             this.vista.mostrarInicioSemana(this.stageActual, this.semanaActual); //React
 
             // Genera los gastos de la semana actual
-            this.gastosSemana = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual);
+            const gastosPlanos = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual);
+            
+            // Se agrupan y calculan sinergias
+            this.gastosSemana = GestorSinergias.agruparGastos(gastosPlanos);
+            this.gastosSemana.forEach(item => {
+                if (item.esGrupo) GestorSinergias.aplicarSinergias(item, this.config);
+            });
 
             // Mientras queden gastos por enfrentar
             while (this.gastosSemana.length > 0) {
@@ -159,7 +166,7 @@ export class MotorJuego {
                 //Se obtiene el gasto elegido
                 const gasto = this.gastosSemana[indexElegido];
 
-                //Se procesa el gasto
+                //Se procesa el gasto (ya sea individual o grupo)
                 await this.procesarGasto(gasto);
                 this.actualizarUIHeaders(); //Se actualizan todos los montos
                 if (await this.evaluarGameOver()) return; // Checa si puede continuar después de procesar el gasto
@@ -258,20 +265,32 @@ export class MotorJuego {
         }
 
         if (decision === 'p') {
-            // 1. Abre el menú para pagar la deuda de la tarjeta
             await this.realizarAbonoVoluntarioTDC();
-
-            // 2. Vuelve a ejecutar TODO este mismo método para el mismo gasto
-            // Lo llama recursivamente
             await this.procesarGasto(gasto);
         } else if (decision === 'd') {
-            this.jugador.pagarConDebito(gasto.monto);
+            const finalMonto = gasto.esGrupo ? gasto.montoModificadoEfectivo : (gasto.montoModificado !== undefined ? gasto.montoModificado : gasto.monto);
+            this.jugador.pagarConDebito(finalMonto);
             this.vista.mostrarResolucionGastoDebito();
         } else if (decision === 't') {
-            this.jugador.comprarConTDC(gasto.monto);
+            const finalMonto = gasto.esGrupo ? gasto.montoModificado : (gasto.montoModificado !== undefined ? gasto.montoModificado : gasto.monto);
+            this.jugador.comprarConTDC(finalMonto);
             this.vista.mostrarResolucionGastoCredito();
+            
+            // Efecto impulsivo del supermercado
+            if (gasto.eventoImpulsivoCredito && Math.random() < 0.40) {
+               this.vista.mostrarImpulsoSupermercado();
+               const impulsivo = GeneradorAleatorio.generarGastoAleatorio(this.config.perfil, "Gusto", GastoGusto, "Genérico");
+               if (impulsivo) {
+                   impulsivo.nombre += " (Caja Súper)";
+                   await this.procesarGasto(impulsivo);
+               }
+            }
         } else if (decision === 'i') {
-            gasto.ignorar();
+            if (gasto.esGrupo) {
+                gasto.gastos.forEach(g => { if (g.ignorar) g.ignorar(); });
+            } else {
+                gasto.ignorar();
+            }
             this.vista.mostrarResolucionGastoIgnorado();
         }
     }

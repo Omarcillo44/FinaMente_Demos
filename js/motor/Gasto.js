@@ -5,6 +5,10 @@ export class Gasto {
         this.monto = datos.monto;
         this.esObligatorio = datos.esObligatorio;
         this.aceptaMSI = datos.aceptaMSI;
+        this.aceptaTDC = datos.aceptaTDC !== undefined ? datos.aceptaTDC : true;
+        this.localizacion = datos.localizacion || 'Genérico';
+        this.tags = datos.tags || [];
+        this.montoModificado = this.monto; // Puede cambiar por sinergias u opciones de eventos
     }
 }
 

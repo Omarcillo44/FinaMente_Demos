@@ -191,23 +191,51 @@ export class ControladorVista {
     }
 
     async mostrarMenuGasto(gasto, estado, puedeIgnorar, ventanaPagoAbierta) {
+        const montoActivo = gasto.montoModificado !== undefined ? gasto.montoModificado : gasto.monto;
         this.consola.print(`\n[¡GASTO!] Te enfrentas a un pago: ${gasto.nombre}`);
-        this.consola.print(`Categoría: ${gasto.categoria} | Monto: $${gasto.monto.toFixed(2)}`);
+        if (gasto.esGrupo) {
+            this.consola.print(`Misión Conjunta con ${gasto.gastos.length} tareas asociadas:`);
+            gasto.gastos.forEach(g => {
+                let montoImp = g.montoModificado !== undefined ? g.montoModificado : g.monto;
+                this.consola.print(`  - ${g.nombre} ($${montoImp.toFixed(2)})`);
+            });
+            gasto.notasSinergia.forEach(nota => {
+                this.consola.print(`> ${nota}`, 'info');
+            });
+        }
+        this.consola.print(`Categoría: ${gasto.categoria} | Monto Total: $${montoActivo.toFixed(2)}`);
 
         let opciones = [];
         let descP = [];
 
-        if (estado.efectivoDisponible >= gasto.monto) {
+        let montoDebito = gasto.esGrupo ? gasto.montoModificadoEfectivo : montoActivo;
+
+        if (estado.efectivoDisponible >= montoDebito) {
             opciones.push('d');
-            descP.push('d: Débito / Efectivo');
+            if (gasto.esGrupo && montoDebito < montoActivo) {
+                 descP.push(`d: Débito / Efectivo ($${montoDebito.toFixed(2)})`);
+            } else {
+                 descP.push(`d: Débito / Efectivo`);
+            }
         }
 
-        if (estado.creditoDisponible >= gasto.monto) {
-            opciones.push('t');
-            descP.push('t: Tarjeta Credito');
+        if (estado.creditoDisponible >= montoActivo && gasto.aceptaTDC !== false) {
+            // Evaluamos aceptaTDC sólo si es individual por ahora, o si es grupo y todos aceptan
+            let aceptaCredito = true;
+            if (gasto.esGrupo) {
+                aceptaCredito = gasto.gastos.every(g => g.aceptaTDC !== false);
+            } else {
+                aceptaCredito = gasto.aceptaTDC !== false;
+            }
+            if (aceptaCredito) {
+                opciones.push('t');
+                descP.push('t: Tarjeta Credito');
+            } else {
+                this.consola.print(`(❗) Este gasto o grupo tiene restricciones y NO se puede pagar con Tarjeta`, 'warning');
+            }
         }
 
-        if (puedeIgnorar) {
+        if (puedeIgnorar && !gasto.bloquearIgnorar) {
             opciones.push('i');
             descP.push('i: Ignorar (Solo aplica a Gustos)');
         }
@@ -232,6 +260,11 @@ export class ControladorVista {
 
     mostrarResolucionGastoCredito() {
         this.consola.print('Pagado con Tarjeta de Crédito.');
+    }
+
+    mostrarImpulsoSupermercado() {
+        this.consola.print('\n(❗) ¡USO DE TARJETA EN SÚPER!', 'warning');
+        this.consola.print('Al pagar con tarjeta, pasaste a las cajas y caíste en la tentación impulsiva de llevarte algo extra...', 'warning');
     }
 
     mostrarResolucionGastoIgnorado() {
