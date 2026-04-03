@@ -61,11 +61,9 @@ export class MotorJuego {
 
         this.vista.actualizarHeaders({
             hp: hp,
-            pagoMinimo: this.jugador.tarjeta.calcularPagoMinimo(),
-            pagoNoIntereses: pagoNoIntereses,
             saldoInsoluto: this.jugador.tarjeta.saldoInsoluto,
             limiteCredito: this.jugador.tarjeta.limiteCredito,
-            scoreCrediticio: this.jugador.scoreCrediticio,
+            efectivoDisponible: this.jugador.efectivoDisponible,
             stageActual: this.stageActual,
             semanaActual: this.semanaActual
         });
@@ -152,6 +150,12 @@ export class MotorJuego {
 
                 //Espera a que el jugador elija un gasto para enfrentarlo
                 const indexElegido = await this.vista.mostrarSelectorGastos(this.gastosSemana);
+                
+                if (indexElegido === 'p') {
+                    await this.realizarAbonoVoluntarioTDC();
+                    continue;
+                }
+
                 //Se obtiene el gasto elegido
                 const gasto = this.gastosSemana[indexElegido];
 
@@ -190,34 +194,37 @@ export class MotorJuego {
         const pagoMinimo = tarjeta.calcularPagoMinimo();
         const deudaTotal = tarjeta.saldoInsoluto + tarjeta.interesesGenerados * 1.16;
 
-        if (deudaTotal > 0) {
-            const estadoTarjeta = {
-                limiteCredito: tarjeta.limiteCredito,
-                creditoDisponible: tarjeta.creditoDisponible,
-                saldoInsoluto: tarjeta.saldoInsoluto,
-                pagoMinimo: pagoMinimo,
-                deudaTotal: deudaTotal,
-                efectivoDisponible: this.jugador.efectivoDisponible
-            };
+        const estadoTarjeta = {
+            limiteCredito: tarjeta.limiteCredito,
+            creditoDisponible: tarjeta.creditoDisponible,
+            saldoInsoluto: tarjeta.saldoInsoluto,
+            pagoMinimo: pagoMinimo,
+            deudaTotal: deudaTotal,
+            efectivoDisponible: this.jugador.efectivoDisponible
+        };
 
-            const eleccion = await this.vista.mostrarMenuAbonoTDC(estadoTarjeta);
+        const eleccion = await this.vista.mostrarMenuAbonoTDC(estadoTarjeta);
 
-            if (eleccion === '1') {
-                this.jugador.pagarDeudaTDC(pagoMinimo);
-                this.vista.mostrarResolucionPagoMinimo();
-                this.jugador.modificarScore(0);
-                this.evaluarAumentoLinea();
-            } else if (eleccion === '2') {
-                this.jugador.pagarDeudaTDC(deudaTotal);
-                const puntos = this.semanaActual === 1 ? 10 : 5; 
-                this.vista.mostrarResolucionPagoTotal();
-                this.jugador.modificarScore(puntos);
-                this.vista.mostrarCambioScore(null, null, this.jugador.scoreCrediticio);
-                this.evaluarAumentoLinea();
-            } else if (eleccion === '3') {
-                // Canceló el depósito voluntario
-                return;
-            }
+        if (eleccion.tipo === 'MINIMO') {
+            this.jugador.pagarDeudaTDC(pagoMinimo);
+            this.vista.mostrarResolucionPagoMinimo();
+            this.jugador.modificarScore(0);
+            this.evaluarAumentoLinea();
+        } else if (eleccion.tipo === 'TOTAL') {
+            this.jugador.pagarDeudaTDC(deudaTotal);
+            const puntos = this.semanaActual === 1 ? 10 : 5; 
+            this.vista.mostrarResolucionPagoTotal();
+            this.jugador.modificarScore(puntos);
+            this.vista.mostrarCambioScore(null, null, this.jugador.scoreCrediticio);
+            this.evaluarAumentoLinea();
+        } else if (eleccion.tipo === 'PARCIAL') {
+            this.jugador.pagarDeudaTDC(eleccion.monto);
+            this.vista.mostrarResolucionPagoParcial(eleccion.monto);
+            // No sumamos score inmediatamente, hasta que termine el mes a ver si cubrió el mínimo
+            this.evaluarAumentoLinea();
+        } else if (eleccion.tipo === 'CANCELAR') {
+            // Canceló el depósito voluntario
+            return;
         }
         this.actualizarUIHeaders();
     }

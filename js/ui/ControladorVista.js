@@ -11,11 +11,9 @@ export class ControladorVista {
     actualizarHeaders(estado) {
         this.consola.updateHeader(
             estado.hp,
-            estado.pagoMinimo,
-            estado.pagoNoIntereses,
             estado.saldoInsoluto,
             estado.limiteCredito,
-            estado.scoreCrediticio,
+            estado.efectivoDisponible,
             estado.stageActual,
             estado.semanaActual
         );
@@ -96,11 +94,13 @@ export class ControladorVista {
             opciones.push(`[${num}] ${gasto.nombre} (${gasto.categoria})`);
             indexString.push(num);
         }
+        opciones.push(`[p] Usar Banca Móvil (Abonar a TDC)`);
+        indexString.push('p');
         
         this.consola.print(opciones.join('  |  '));
         const opcionElegida = await this.consola.prompt(`Elige a qué enfrentar primero (1-${gastosDisponibles.length}):`, indexString);
         
-        // Convertimos un string de base-1 a un índice base-0 lógico
+        if (opcionElegida === 'p') return 'p';
         return parseInt(opcionElegida) - 1;
     }
 
@@ -124,19 +124,38 @@ export class ControladorVista {
         let msgs = [];
         let opciones = [];
 
-        if (estado.efectivoDisponible >= estado.pagoMinimo) {
+        if (estado.efectivoDisponible >= estado.pagoMinimo && estado.pagoMinimo > 0) {
             opciones.push('1');
             msgs.push(`[1] Pagar Mínimo ($${estado.pagoMinimo.toFixed(2)})`);
         }
-        if (estado.efectivoDisponible >= estado.deudaTotal) {
+        if (estado.efectivoDisponible >= estado.deudaTotal && estado.deudaTotal > 0) {
             opciones.push('2');
             msgs.push(`[2] Pagar Cuenta Total ($${estado.deudaTotal.toFixed(2)})`);
         }
-        opciones.push('3');
-        msgs.push(`[3] Cancelar (Regresar a gastos)`);
+        if (estado.efectivoDisponible > 0) {
+            opciones.push('3');
+            msgs.push(`[3] Otro Monto`);
+        }
+        opciones.push('4');
+        msgs.push(`[4] Cancelar`);
 
         this.consola.print(msgs.join('  |  '));
-        return await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
+        const opcion = await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
+
+        if (opcion === '3') {
+            let numParsed = -1;
+            while (numParsed <= 0 || numParsed > estado.efectivoDisponible) {
+                const amountInput = await this.consola.prompt(`¿Cuánto deseas abonar? ($1 - $${estado.efectivoDisponible.toFixed(2)}):`);
+                numParsed = parseFloat(amountInput);
+                if (isNaN(numParsed) || numParsed <= 0 || numParsed > estado.efectivoDisponible) {
+                    this.consola.print(`Entrada inválida o monto superior a tu efectivo disponible. Intenta de nuevo.`, 'warning');
+                    numParsed = -1; // Force loop again
+                }
+            }
+            return { tipo: 'PARCIAL', monto: numParsed };
+        }
+
+        return { tipo: opcion === '1' ? 'MINIMO' : opcion === '2' ? 'TOTAL' : 'CANCELAR' };
     }
     
     mostrarAdvertenciaUltimoDia() {
@@ -147,8 +166,16 @@ export class ControladorVista {
         this.consola.print('Pagaste solo el mínimo. La deuda restante seguirá generando intereses si no liquidas pronto.', 'warning');
     }
 
+    mostrarResolucionPagoParcial(monto) {
+        this.consola.print(`Abonaste $${monto.toFixed(2)} a tu tarjeta.`, 'info');
+    }
+
     mostrarResolucionPagoTotal(puntosGanados) {
         this.consola.print('Pagaste el total de tu cuenta. ¡Excelente manejo!', 'prompt');
+    }
+
+    mostrarSinDeuda() {
+        this.consola.print('Tu tarjeta actualmente está en un saldo de $0. No hay nada qué pagar.', 'info');
     }
 
     mostrarResolucionExpiracion(cargoTardio) {
@@ -185,10 +212,9 @@ export class ControladorVista {
             descP.push('i: Ignorar (Solo aplica a Gustos)');
         }
 
-        if (ventanaPagoAbierta) {
-            opciones.push('p');
-            descP.push('p: Pagar Tarjeta (Abono Manual)');
-        }
+        // La opción p siempre aparece (se quitó la condicional de deuda)
+        opciones.push('p');
+        descP.push('p: Pagar Tarjeta (Abono Manual)');
 
         if (opciones.length === 0) {
             return null; // Indica que no puede pagar

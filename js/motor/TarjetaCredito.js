@@ -89,15 +89,9 @@ export class TarjetaCredito {
 
         // 2. Lo que sobra, se va a capital (saldo insoluto)
         if (montoRestante > 0) {
-            if (montoRestante >= this.saldoInsoluto) {
-                // Pago total
-                this.creditoDisponible += this.saldoInsoluto; //Se recupera la línea
-                this.saldoInsoluto = 0; //Se reestablece el saldo
-            } else {
-                // Pago parcial
-                this.saldoInsoluto -= montoRestante; //Se reduce el saldo
-                this.creditoDisponible += montoRestante; //Se libera parte del crédito consumido
-            }
+            // Se resta libremente, permitiendo saldos negativos (saldo a favor)
+            this.saldoInsoluto -= montoRestante; 
+            this.creditoDisponible += montoRestante;
         }
     }
 

@@ -6,9 +6,8 @@ export class Consola {
         this.hpBar = document.getElementById('hp-bar');
         this.hpValue = document.getElementById('hp-value');
         this.saldoValue = document.getElementById('saldo-value');
-        this.pagoMinimoValue = document.getElementById('pago-minimo-value');
-        this.pagoNoInteresesValue = document.getElementById('pago-no-intereses-value');
-        this.scoreValue = document.getElementById('score-value');
+        this.efectivoValue = document.getElementById('efectivo-value');
+
         this.stageValue = document.getElementById('stage-value');
         this.semanaValue = document.getElementById('semana-value');
 
@@ -80,13 +79,11 @@ export class Consola {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    updateHeader(hp, pagoMinimo, pagoNoIntereses, saldo, limite, score, stage, semana) {
+    updateHeader(hp, saldo, limite, efectivo, stage, semana) {
         this.hpBar.classList.remove('hidden');
         this.hpValue.textContent = `HP: $${hp.toFixed(2)}`;
         this.saldoValue.textContent = `$${saldo.toFixed(2)} / $${limite.toFixed(2)}`;
-        this.pagoMinimoValue.textContent = `$${pagoMinimo.toFixed(2)}`;
-        this.pagoNoInteresesValue.textContent = `$${pagoNoIntereses.toFixed(2)}`;
-        this.scoreValue.textContent = score.toString();
+        this.efectivoValue.textContent = `$${efectivo.toFixed(2)}`;
         this.stageValue.textContent = stage;
         this.semanaValue.textContent = semana;
     }
