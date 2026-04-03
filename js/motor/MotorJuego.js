@@ -6,8 +6,8 @@ import { GeneradorAleatorio } from './GeneradorAleatorio.js';
 import { GastoGusto } from './Gasto.js';
 
 export class MotorJuego {
-    constructor(consola) {
-        this.consola = consola;
+    constructor(vista) {
+        this.vista = vista;
         this.jugador = null; //Se determina luego por el usuario
         this.config = null; //Se determina luego por el usuario
         this.stageActual = 1; //Mes
@@ -19,15 +19,22 @@ export class MotorJuego {
     }
 
     async inicializarJugador(perfilEnum) {
+        //Se extrae el perfil seleccionado del enum y se guarda en this.config
         this.config = ConfigPerfil.get(perfilEnum);
 
+
+        /*
+        * Se define el ingreso inicial dependiendo del perfil
+        * Si es esporádico, se toma su valor del config
+        * Si es trabajador, se toma un valor aleatorio entre el min y max del config
+        */
         let ingresoInicial;
         if (perfilEnum === PerfilEnum.ESPORADICO) {
             ingresoInicial = this.config.ingresoStage1;
         } else if (perfilEnum === PerfilEnum.TRABAJADOR) {
             ingresoInicial = GeneradorAleatorio.randomBetween(this.config.ingresoMin, this.config.ingresoMax);
         } else {
-            // Fijo
+            // Los demás perfiles tienen ingresos fijos iniciales
             ingresoInicial = this.config.ingresoFijo;
         }
 
@@ -37,36 +44,31 @@ export class MotorJuego {
         this.jugador = new Jugador(perfilEnum, ingresoInicial, tarjeta);
 
         this.actualizarUIHeaders();
-        this.consola.print(`>>> PERFIL INICIALIZADO: ${perfilEnum} <<<`, 'info');
-        this.consola.print(`Ingreso Inicial: $${ingresoInicial}`);
-        this.consola.print(`Límite de Crédito: $${limiteInicial.toFixed(2)} (Tasa Anual: ${(this.config.tasaInteresAnual * 100).toFixed(1)}%)`);
-        await this.consola.sleep(1000);
+        this.vista.mostrarInicializacion(perfilEnum, ingresoInicial, limiteInicial, this.config.tasaInteresAnual);
+        await this.vista.sleep(1000);
     }
 
     actualizarUIHeaders() {
         if (!this.jugador) return;
         const hp = this.jugador.calcularHP();
         const pagoNoIntereses = this.jugador.tarjeta.saldoInsoluto + (this.jugador.tarjeta.interesesGenerados * 1.16);
-        this.consola.updateHeader(
-            hp,
-            this.jugador.tarjeta.calcularPagoMinimo(),
-            pagoNoIntereses,
-            this.jugador.tarjeta.saldoInsoluto,
-            this.jugador.tarjeta.limiteCredito,
-            this.jugador.scoreCrediticio,
-            this.stageActual,
-            this.semanaActual
-        );
+        
+        this.vista.actualizarHeaders({
+            hp: hp,
+            pagoMinimo: this.jugador.tarjeta.calcularPagoMinimo(),
+            pagoNoIntereses: pagoNoIntereses,
+            saldoInsoluto: this.jugador.tarjeta.saldoInsoluto,
+            limiteCredito: this.jugador.tarjeta.limiteCredito,
+            scoreCrediticio: this.jugador.scoreCrediticio,
+            stageActual: this.stageActual,
+            semanaActual: this.semanaActual
+        });
     }
 
     async evaluarGameOver() {
         if (this.jugador.calcularHP() <= 0) {
             this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
-            this.consola.print('\n====================================', 'error');
-            this.consola.print('!!!!!!! GAME OVER !!!!!!!', 'error');
-            this.consola.print('Tu HP (Ingreso - Pago Mínimo) llegó a 0 o menos.', 'error');
-            this.consola.print('Ya no puedes cubrir ni siquiera los pagos mínimos.', 'error');
-            this.consola.print('====================================\n', 'error');
+            this.vista.mostrarGameOverPorHP();
             return true;
         }
         return false;
@@ -81,43 +83,36 @@ export class MotorJuego {
             if (this.estadoJuego === EstadoJuegoEnum.GAME_OVER) break;
 
             // Fin de stage
-            this.consola.print(`\n--- FIN DEL STAGE ${this.stageActual} ---`, 'info');
-            this.consola.print(`Corte de Tarjeta: Se calculan intereses si aplica.`);
+            this.vista.mostrarFinStage(this.stageActual);
             this.jugador.tarjeta.generarIntereses(); // Se generan intereses de lo que quedó de saldo
 
             // Evaluar score
             const usoCredito = this.jugador.tarjeta.saldoInsoluto / this.jugador.tarjeta.limiteCredito;
             if (usoCredito < 0.60) {
-                this.consola.print('Score: Buen uso del crédito (< 60%). +5 pts', 'info');
                 this.jugador.modificarScore(5);
-                this.consola.print(`>>> Score actualizado a: ${this.jugador.scoreCrediticio} pts <<<`, 'user-input');
+                this.vista.mostrarCambioScore('Score: Buen uso del crédito (< 60%). +5 pts', 'info', this.jugador.scoreCrediticio);
             } else if (usoCredito >= 0.90) {
-                this.consola.print('Score: Uso excesivo del límite (>= 90%). -5 pts', 'warning');
                 this.jugador.modificarScore(-5);
-                this.consola.print(`>>> Score actualizado a: ${this.jugador.scoreCrediticio} pts <<<`, 'user-input');
+                this.vista.mostrarCambioScore('Score: Uso excesivo del límite (>= 90%). -5 pts', 'warning', this.jugador.scoreCrediticio);
             }
 
             // Abriendo ventana de pago para el siguiente stage (en las semanas 1 y 2)
             if (this.stageActual < 6) {
                 this.ventanaPago = VentanaPagoEnum.ABIERTA;
-                this.consola.print("¡La Ventana de Pago de tu Tarjeta de Crédito está ABIERTA!");
+                this.vista.mostrarNotificacionVentanaPagoAbierta();
             } else {
                 this.ventanaPago = VentanaPagoEnum.INMEDIATA;
-                this.consola.print("¡Es Stage 6, recuento final!");
+                this.vista.mostrarNotificacionVentanaPagoInmediata();
                 await this.manejarVentanaDePago(); // Forzar en S6
             }
 
             this.stageActual++;
-            await this.consola.sleep(1500);
+            await this.vista.sleep(1500);
         }
 
         if (this.estadoJuego !== EstadoJuegoEnum.GAME_OVER) {
             this.estadoJuego = EstadoJuegoEnum.COMPLETADO;
-            this.consola.print('\n====================================', 'info');
-            this.consola.print('! FELICIDADES ! HAS COMPLETADO LOS 6 MESES.', 'prompt');
-            this.consola.print(`HP Final: $${this.jugador.calcularHP().toFixed(2)}`);
-            this.consola.print(`Score Crediticio Final: ${this.jugador.scoreCrediticio.toFixed(0)}`);
-            this.consola.print('====================================\n', 'info');
+            this.vista.mostrarVictoria(this.jugador.calcularHP(), this.jugador.scoreCrediticio);
         }
     }
 
@@ -128,13 +123,13 @@ export class MotorJuego {
             let nuevoIngreso;
             if (this.config.perfil === PerfilEnum.ESPORADICO) {
                 nuevoIngreso = GeneradorAleatorio.generarIngresoEsporadico(this.config);
-                this.consola.print(`\nMes nuevo. Ingreso esporádico recibido: $${nuevoIngreso.toFixed(2)}`, 'info');
+                this.vista.mostrarIngresoNuevoMes(true, nuevoIngreso);
             } else if (this.config.perfil === PerfilEnum.TRABAJADOR) {
                 nuevoIngreso = GeneradorAleatorio.randomBetween(this.config.ingresoMin, this.config.ingresoMax);
-                this.consola.print(`\nMes nuevo. Ingreso recibido: $${nuevoIngreso.toFixed(2)}`, 'info');
+                this.vista.mostrarIngresoNuevoMes(false, nuevoIngreso);
             } else {
                 nuevoIngreso = this.config.ingresoFijo;
-                this.consola.print(`\nMes nuevo. Ingreso recibido: $${nuevoIngreso.toFixed(2)}`, 'info');
+                this.vista.mostrarIngresoNuevoMes(false, nuevoIngreso);
             }
             this.jugador.actualizarIngreso(nuevoIngreso);
             this.actualizarUIHeaders();
@@ -142,14 +137,12 @@ export class MotorJuego {
 
         for (this.semanaActual = 1; this.semanaActual <= 4; this.semanaActual++) {
             this.actualizarUIHeaders();
-            this.consola.print(`\n========================================`, 'info');
-            this.consola.print(`|        STAGE ${this.stageActual}  -  SEMANA ${this.semanaActual}         |`, 'user-input');
-            this.consola.print(`========================================\n`, 'info');
+            this.vista.mostrarInicioSemana(this.stageActual, this.semanaActual);
 
             this.gastosSemana = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual);
 
             if (this.gastosSemana.length === 0) {
-                this.consola.print("Una semana tranquila. No hubo gastos.", "system");
+                this.vista.mostrarSemanaTranquila();
             }
 
             for (let i = 0; i < this.gastosSemana.length; i++) {
@@ -169,10 +162,10 @@ export class MotorJuego {
             }
 
             // Preguntar si quiere salir en cualquier momento para prueba
-            const salir = await this.consola.prompt("[Enter] para continuar, o escribe 'salir' para abandonar:", ['salir', '']);
+            const salir = await this.vista.confirmarAvance();
             if (salir === 'salir') {
                 this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
-                this.consola.print("Juego cancelado por el usuario.");
+                this.vista.mostrarCancelacionUsuario();
                 return;
             }
         }
@@ -184,58 +177,34 @@ export class MotorJuego {
         const deudaTotal = tarjeta.saldoInsoluto + tarjeta.interesesGenerados * 1.16;
 
         if (deudaTotal > 0) {
-            this.consola.print(`\n>>> VENTANA DE PAGO <<< (Finalizando Semana 2)`, 'warning');
-            this.consola.print(`Estado Tarjeta:`);
-            this.consola.print(`- Límite Total: $${tarjeta.limiteCredito.toFixed(2)}`);
-            this.consola.print(`- Crédito Disponible: $${tarjeta.creditoDisponible.toFixed(2)}`);
-            this.consola.print(`- Saldo Insoluto: $${tarjeta.saldoInsoluto.toFixed(2)}`);
-            this.consola.print(`- Pago Mínimo Requerido: $${pagoMinimo.toFixed(2)}`);
-            this.consola.print(`EFECTIVO DISPONIBLE: $${this.jugador.efectivoDisponible.toFixed(2)}`, 'info');
+            const estadoTarjeta = {
+                limiteCredito: tarjeta.limiteCredito,
+                creditoDisponible: tarjeta.creditoDisponible,
+                saldoInsoluto: tarjeta.saldoInsoluto,
+                pagoMinimo: pagoMinimo,
+                deudaTotal: deudaTotal,
+                efectivoDisponible: this.jugador.efectivoDisponible
+            };
 
-            const pagoRequiereMonto = function (monto) {
-                return (this.jugador.efectivoDisponible >= monto);
-            }.bind(this);
-
-            let opciones = [];
-            let msgs = [];
-
-            if (pagoRequiereMonto(pagoMinimo)) {
-                opciones.push('1');
-                msgs.push(`[1] Pagar Mínimo ($${pagoMinimo.toFixed(2)})`);
-            }
-            if (pagoRequiereMonto(deudaTotal)) {
-                opciones.push('2');
-                msgs.push(`[2] Pagar Cuenta Total ($${deudaTotal.toFixed(2)})`);
-            }
-            opciones.push('3');
-            msgs.push(`[3] No pagar (Ignorar/Expirar)`);
-
-            this.consola.print(msgs.join('  |  '));
-            let eleccion;
-            while (true) {
-                eleccion = await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
-                break;
-            }
+            const eleccion = await this.vista.mostrarMenuVentanaPago(estadoTarjeta);
 
             if (eleccion === '1') {
                 this.jugador.pagarDeudaTDC(pagoMinimo);
-                this.consola.print('Pagaste solo el mínimo. La deuda restante seguirá generando intereses si no liquidas pronto.', 'warning');
+                this.vista.mostrarResolucionPagoMinimo();
                 this.jugador.modificarScore(0);
                 this.evaluarAumentoLinea();
             } else if (eleccion === '2') {
                 this.jugador.pagarDeudaTDC(deudaTotal);
-                this.consola.print('Pagaste el total de tu cuenta. ¡Excelente manejo!', 'prompt');
                 const puntos = this.semanaActual === 1 ? 10 : 5; // En Stage 6 o S2
+                this.vista.mostrarResolucionPagoTotal();
                 this.jugador.modificarScore(puntos);
-                this.consola.print(`>>> Score actualizado a: ${this.jugador.scoreCrediticio} pts <<<`, 'user-input');
+                this.vista.mostrarCambioScore(null, null, this.jugador.scoreCrediticio);
                 this.evaluarAumentoLinea();
             } else {
-                this.consola.print('Has dejado expirar la ventana de pago.', 'error');
                 const cargo = tarjeta.aplicarCargoTardio();
-                this.consola.print(`Se ha aplicado un cargo por pago tardío de $${cargo.toFixed(2)}`, 'error');
-                this.consola.print('Disminución de 20 pts de Score.', 'error');
+                this.vista.mostrarResolucionExpiracion(cargo);
                 this.jugador.modificarScore(-20);
-                this.consola.print(`>>> Score actualizado a: ${this.jugador.scoreCrediticio} pts <<<`, 'user-input');
+                this.vista.mostrarCambioScore(null, null, this.jugador.scoreCrediticio);
             }
         }
         this.ventanaPago = VentanaPagoEnum.EXPIRADA;
@@ -245,57 +214,28 @@ export class MotorJuego {
     evaluarAumentoLinea() {
         const nuevoLimite = GeneradorAleatorio.evaluarAumentoLinea(this.jugador.scoreCrediticio, this.jugador.tarjeta.limiteCredito);
         if (nuevoLimite) {
-            this.consola.print(`>>> ¡BUEN HISTORIAL PREMIADO! <<<`, 'prompt');
-            this.consola.print(`Tu límite de crédito ha sido aumentado de $${this.jugador.tarjeta.limiteCredito.toFixed(2)} a $${nuevoLimite.toFixed(2)}`, 'prompt');
             const diff = nuevoLimite - this.jugador.tarjeta.limiteCredito;
+            this.vista.mostrarAumentoLinea(this.jugador.tarjeta.limiteCredito, nuevoLimite);
             this.jugador.tarjeta.limiteCredito = nuevoLimite;
             this.jugador.tarjeta.creditoDisponible += diff;
         }
     }
 
     async procesarGasto(gasto) {
-        this.consola.print(`\n[¡GASTO!] Te enfrentas a un pago: ${gasto.nombre}`);
-        this.consola.print(`Categoría: ${gasto.categoria} | Monto: $${gasto.monto.toFixed(2)}`);
+        const estadoVirtual = {
+            efectivoDisponible: this.jugador.efectivoDisponible,
+            creditoDisponible: this.jugador.tarjeta.creditoDisponible
+        };
+        const puedeIgnorar = (gasto instanceof GastoGusto);
+        const ventanaPagoAbierta = (this.ventanaPago === VentanaPagoEnum.ABIERTA && (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0));
 
-        let opciones = [];
-        let descP = [];
+        const decision = await this.vista.mostrarMenuGasto(gasto, estadoVirtual, puedeIgnorar, ventanaPagoAbierta);
 
-        // Evaluar debit
-        if (this.jugador.efectivoDisponible >= gasto.monto) {
-            opciones.push('d');
-            descP.push('d: Débito / Efectivo');
-        }
-
-        if (this.jugador.tarjeta.creditoDisponible >= gasto.monto) {
-            opciones.push('t');
-            descP.push('t: Tarjeta Credito');
-        }
-
-        if (gasto instanceof GastoGusto) {
-            opciones.push('i');
-            descP.push('i: Ignorar (Solo aplica a Gustos)');
-        }
-
-        if (this.ventanaPago === VentanaPagoEnum.ABIERTA && (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0)) {
-            opciones.push('p');
-            descP.push('p: **Pagar Tarjeta (Ventana Abierta)**');
-        }
-
-        if (opciones.length === 0) {
-            this.consola.print(`¡No tienes efectivo ni crédito suficiente para cubrir este gasto obligatorio!`, 'error');
+        if (decision === null) {
             this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
-            this.consola.print('\n====================================', 'error');
-            this.consola.print('!!!!!!! GAME OVER !!!!!!!', 'error');
-            this.consola.print('Te has quedado sin liquidez (insolvencia total).', 'error');
-            this.consola.print('No puedes enfrentar una responsabilidad financiera básica.', 'error');
-            this.consola.print('====================================\n', 'error');
+            this.vista.mostrarGameOverInsolvencia();
             return;
         }
-
-        this.consola.print(`Efectivo: $${this.jugador.efectivoDisponible.toFixed(2)} | Crédito: $${this.jugador.tarjeta.creditoDisponible.toFixed(2)}`);
-        this.consola.print(`¿Con qué pagas? -> ${descP.join(' | ')}`);
-
-        const decision = await this.consola.prompt('Elige: ', opciones);
 
         if (decision === 'p') {
             await this.manejarVentanaDePago();
@@ -304,13 +244,13 @@ export class MotorJuego {
             await this.procesarGasto(gasto);
         } else if (decision === 'd') {
             this.jugador.pagarConDebito(gasto.monto);
-            this.consola.print('Pagado con débito/efectivo.');
+            this.vista.mostrarResolucionGastoDebito();
         } else if (decision === 't') {
             this.jugador.comprarConTDC(gasto.monto);
-            this.consola.print('Pagado con Tarjeta de Crédito.');
+            this.vista.mostrarResolucionGastoCredito();
         } else if (decision === 'i') {
             gasto.ignorar();
-            this.consola.print('Has ignorado este gusto.');
+            this.vista.mostrarResolucionGastoIgnorado();
         }
     }
 }

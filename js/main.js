@@ -1,10 +1,12 @@
 import { Consola } from './ui/Consola.js';
+import { ControladorVista } from './ui/ControladorVista.js';
 import { MotorJuego } from './motor/MotorJuego.js';
 import { PerfilEnum } from './motor/Enums.js';
 
 window.addEventListener('DOMContentLoaded', async () => {
     const consola = new Consola();
-    const motor = new MotorJuego(consola);
+    const vista = new ControladorVista(consola);
+    const motor = new MotorJuego(vista);
 
     consola.print('============================================', 'info');
     consola.print('             F i n a M e n t e              ', 'info');
