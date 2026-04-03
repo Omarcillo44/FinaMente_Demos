@@ -108,7 +108,7 @@ export class MotorJuego {
 
             // Reiniciar el tracker de abonos para la tarjeta de crédito en el nuevo ciclo
             this.jugador.tarjeta.reiniciarCicloDePago();
-            
+
             if (this.stageActual === 6) {
                 // Forzar un pago voluntario final al terminar el último stage
                 this.vista.mostrarNotificacionVentanaPagoInmediata();
@@ -155,7 +155,7 @@ export class MotorJuego {
 
             // Genera la pool de gastos de la semana actual
             this.poolGastosSemana = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual, this.recurrentesStage);
-            
+
             // Mientras no se avance de semana
             while (true) {
                 if (this.semanaActual === 2 && this.poolGastosSemana.length <= 1) {
@@ -167,7 +167,7 @@ export class MotorJuego {
 
                 //Espera a que el jugador elija un destino en el mapa
                 const destino = await this.vista.mostrarSelectorLocalizaciones(this.poolGastosSemana);
-                
+
                 if (destino === 'p') {
                     await this.realizarAbonoVoluntarioTDC();
                     continue;
@@ -177,10 +177,10 @@ export class MotorJuego {
                     const obligatorios = this.poolGastosSemana.filter(g => g.esObligatorio);
                     if (obligatorios.length > 0) {
                         this.vista.consola.print(`\n⚠️ ¡ESPERA! Olvidaste encargos OBLIGATORIOS. Tienes que salir de urgencia a comprarlos.`, 'warning');
-                        
+
                         const esTaxi = Math.random() < 0.20;
-                        const viaje = GeneradorAleatorio.generarGastoAleatorio(this.config.perfil, "Básico", GastoBasico, null) || new GastoBasico({nombre: 'Viaje genérico', categoria: 'Básico', monto: 15, aceptaMSI: false, aceptaTDC: false});
-                        
+                        const viaje = GeneradorAleatorio.generarGastoAleatorio(this.config.perfil, "Básico", GastoBasico, null) || new GastoBasico({ nombre: 'Viaje genérico', categoria: 'Básico', monto: 15, aceptaMSI: false, aceptaTDC: false });
+
                         viaje.nombre = esTaxi ? "Taxi de Urgencia (¡Ya van a cerrar!)" : "Transporte de Urgencia";
                         viaje.monto = esTaxi ? 100 : 15;
                         viaje.opcionesCompra = { 'Urgencia Final': { modMonto: 1.0 } };
@@ -206,7 +206,7 @@ export class MotorJuego {
                 this.actualizarUIHeaders();
                 if (await this.evaluarGameOver()) return;
             }
-            
+
             // Revisión silenciosa del pago mínimo al final de la semana 2
             if (this.semanaActual === 2) {
                 const tarjeta = this.jugador.tarjeta;
@@ -304,7 +304,7 @@ export class MotorJuego {
         } else if (eleccion.tipo === 'TOTAL') {
             this.jugador.pagarDeudaTDC(deudaTotal);
             pagoEnEstaSesion = deudaTotal;
-            const puntos = this.semanaActual === 1 ? 10 : 5; 
+            const puntos = this.semanaActual === 1 ? 10 : 5;
             this.vista.mostrarResolucionPagoTotal();
             this.jugador.modificarScore(puntos);
             this.vista.mostrarCambioScore(`Score: Pago total de deuda. +${puntos} pts`, 'info', this.jugador.scoreCrediticio);
@@ -316,6 +316,10 @@ export class MotorJuego {
             this.vista.mostrarResolucionPagoParcial(eleccion.monto);
             this.mensajesRetroalimentacion.push(`Abono parcial de $${eleccion.monto.toFixed(2)} a TDC.`);
             this.evaluarAumentoLinea();
+        } else if (eleccion.tipo === 'DISPONER') {
+            await this.realizarDisposicionEfectivo();
+            this.actualizarUIHeaders();
+            return; // Ya actualizó headers dentro
         } else if (eleccion.tipo === 'CANCELAR') {
             return;
         }
@@ -344,6 +348,34 @@ export class MotorJuego {
         this.actualizarUIHeaders();
     }
 
+    async realizarDisposicionEfectivo() {
+        const tarjeta = this.jugador.tarjeta;
+        const estadoDisposicion = {
+            creditoDisponible: tarjeta.creditoDisponible,
+            comisionPct: tarjeta.comisionDisposicion,
+            cargoRedExterno: tarjeta.cargoRedCajero,
+            tasaDisposicionMensual: tarjeta.tasaDisposicionMensual()
+        };
+
+        const eleccion = await this.vista.mostrarMenuDisposicion(estadoDisposicion);
+
+        if (!eleccion || eleccion.tipo === 'CANCELAR') return;
+
+        const usaCajeroExterno = eleccion.usaCajeroExterno || false;
+        const resultado = this.jugador.disponer(eleccion.monto, usaCajeroExterno);
+
+        if (!resultado.exito) {
+            this.vista.consola.print('❌ No tienes crédito disponible suficiente para esa disposición (incluida la comisión).', 'error');
+            return;
+        }
+
+        this.vista.mostrarResolucionDisposicion(resultado);
+        this.mensajesRetroalimentacion.push(
+            `💸 Disposición de efectivo: $${eleccion.monto.toFixed(2)} + comisión $${resultado.comision.toFixed(2)}${resultado.cargoRed > 0 ? ` + red $${resultado.cargoRed.toFixed(2)}` : ''}`
+        );
+        this.actualizarUIHeaders();
+    }
+
     evaluarAumentoLinea() {
         const nuevoLimite = GeneradorAleatorio.evaluarAumentoLinea(this.jugador.scoreCrediticio, this.jugador.tarjeta.limiteCredito);
         if (nuevoLimite) {
@@ -358,7 +390,7 @@ export class MotorJuego {
 
     async procesarBatalla(batalla) {
         this.vista.consola.print(`\n🚀 LLEGANDO A: <span style="color: orange">${batalla.localizacion.toUpperCase()}</span>`, 'system');
-        
+
         while (batalla.gastos.length > 0) {
             const estadoVirtual = {
                 efectivoDisponible: this.jugador.efectivoDisponible,
@@ -375,7 +407,7 @@ export class MotorJuego {
                 const monto = batalla.totalSinPagar;
                 this.jugador.comprarConTDC(monto);
                 this.vista.mostrarResolucionGastoCredito();
-                
+
                 // Calidad de Vida por los gustos comprados en combo
                 [...batalla.gastos].forEach(g => {
                     if (g instanceof GastoGusto) {
@@ -389,7 +421,7 @@ export class MotorJuego {
 
                 // Limpiar gastos comprados
                 [...batalla.gastos].forEach(g => batalla.eliminarDePool(g));
-                break; 
+                break;
             }
 
             if (opt === 'e') { // TODO Efectivo
@@ -414,14 +446,14 @@ export class MotorJuego {
                         this.mensajesRetroalimentacion.push(`+${pts} CV: Disfrutaste "${g.nombre}".`);
                     }
                 });
-                
+
                 gastosCombo.forEach(g => batalla.eliminarDePool(g));
-                break; 
+                break;
             }
 
             // opt es un numero
             let gastoSeleccionado = batalla.gastos[opt];
-            await this.procesarGastoIndividual(gastoSeleccionado, batalla); 
+            await this.procesarGastoIndividual(gastoSeleccionado, batalla);
         }
     }
 
@@ -453,7 +485,7 @@ export class MotorJuego {
                 finalMonto -= gasto.descuentoFijoEfectivo;
                 gasto.descuentoFijoEfectivo = 0; // Se consumió el bono fijo
             }
-            
+
             finalMonto = Math.max(0, finalMonto);
 
             this.jugador.pagarConDebito(finalMonto);

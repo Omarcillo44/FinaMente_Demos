@@ -6,6 +6,7 @@ export class TarjetaCredito {
         this.cat = config.cat;
         this.comisionPagoTardio = config.comisionTardio;
         this.saldoInsoluto = 0;
+        this.saldoDisposicion = 0;    // Saldo de disposición de efectivo (sin gracia, interés diario)
         this.interesesGenerados = 0;
         this.comprasMSI = [];
         this.pagoAcumuladoMes = 0;
@@ -13,11 +14,45 @@ export class TarjetaCredito {
         this.tarjetaBloqueada = false;
         this.mesesIncumplimientoMSI = 0;
         this.comisionFaltaPagoMSI = 450; // $450 MXN fija (rango real: $300-$600)
+        // Disposición de efectivo
+        this.comisionDisposicion = 0.07;    // 7% sobre el monto retirado
+        this.cargoRedCajero = 34.80;         // $30 MXN + 16% IVA = $34.80
     }
 
     tasaInteresMensual() {
         return Math.pow(1 + this.tasaInteresAnual, 1 / 12) - 1; //Pura ingeniería económica
     }
+
+    // Tasa de interés de disposición: 25% más cara que la tasa normal (sin gracia)
+    tasaDisposicionMensual() {
+        return this.tasaInteresMensual() * 1.25;
+    }
+
+    /**
+     * Disposición de efectivo desde la TDC.
+     * @param {number} monto - Monto a retirar en pesos.
+     * @param {boolean} usaCajeroExterno - Si usa cajero de otro banco (cobra cargo de red).
+     * @returns {{ exito: boolean, montoRecibido: number, comision: number, cargoRed: number }}
+     */
+    disposicionEfectivo(monto, usaCajeroExterno = false) {
+        const comision = Math.ceil(monto * this.comisionDisposicion * 100) / 100;
+        const cargoRed = usaCajeroExterno ? this.cargoRedCajero : 0;
+        const cargoTotal = monto + comision + cargoRed;
+
+        if (cargoTotal > this.creditoDisponible) {
+            return { exito: false, montoRecibido: 0, comision, cargoRed };
+        }
+
+        // Bloquear el crédito por el total (capital + comisión + red)
+        this.creditoDisponible -= cargoTotal;
+        // El saldo insoluto crece con todo el cargo
+        this.saldoInsoluto += monto;
+        this.saldoDisposicion += monto;        // Tracked separado para tasa diferenciada
+        this.saldoInsoluto += comision + cargoRed; // Comisión y red también son deuda inmediata
+
+        return { exito: true, montoRecibido: monto, comision, cargoRed };
+    }
+
 
     cargoNormal(monto) {
         if (monto > this.creditoDisponible) {
@@ -180,7 +215,13 @@ export class TarjetaCredito {
     // Se llama SI el jugador no hizo el "Pago Total" en su ventana de pago.
     generarIntereses() {
         if (this.saldoInsoluto > 0) {
-            const nuevosIntereses = this.saldoInsoluto * this.tasaInteresMensual();
+            // Saldo de compras normales: tasa estándar
+            const saldoNormal = Math.max(0, this.saldoInsoluto - this.saldoDisposicion);
+            const interesesNormales = saldoNormal * this.tasaInteresMensual();
+            // Saldo de disposición: tasa diferenciada (sin gracia)
+            const interesesDisposicion = this.saldoDisposicion * this.tasaDisposicionMensual();
+
+            const nuevosIntereses = interesesNormales + interesesDisposicion;
             this.interesesGenerados += nuevosIntereses;
 
             // El banco te reduce el crédito disponible por los intereses + IVA generados

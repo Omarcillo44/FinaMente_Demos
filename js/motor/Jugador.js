@@ -57,4 +57,16 @@ export class Jugador {
         if (this.calidadVida > 100) this.calidadVida = 100;
         if (this.calidadVida < 0) this.calidadVida = 0;
     }
+
+    /**
+     * Disposición de efectivo desde la TDC.
+     * Devuelve el resultado del cargo (incluye exito, comision, cargoRed).
+     */
+    disponer(monto, usaCajeroExterno = false) {
+        const resultado = this.tarjeta.disposicionEfectivo(monto, usaCajeroExterno);
+        if (resultado.exito) {
+            this.efectivoDisponible += monto; // El dinero llega a la mano
+        }
+        return resultado;
+    }
 }

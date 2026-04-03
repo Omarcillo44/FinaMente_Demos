@@ -252,10 +252,14 @@ export class ControladorVista {
             opciones.push('3');
             msgs.push(`[3] Otro Monto`);
         }
+        if (estado.creditoDisponible > 0) {
+            opciones.push('5');
+            msgs.push(`[5] 💸 Disposición de Efectivo (retirar dinero de tu TDC con comisión)`);
+        }
         opciones.push('4');
         msgs.push(`[4] Cancelar`);
 
-        this.consola.print(msgs.join('  |  '));
+        this.consola.print(msgs.join('\n'));
         const opcion = await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
 
         if (opcion === '3') {
@@ -271,11 +275,50 @@ export class ControladorVista {
             return { tipo: 'PARCIAL', monto: numParsed };
         }
 
+        if (opcion === '5') return { tipo: 'DISPONER' };
+
         return { tipo: opcion === '1' ? 'MINIMO' : opcion === '2' ? 'TOTAL' : 'CANCELAR' };
     }
 
     mostrarAdvertenciaUltimoDia() {
         this.consola.print(`\n⚠️ ¡CUIDADO! Es el último gasto de la semana 2. Si no has cubierto tu pago mínimo de la TDC, enfrentarás multas silenciosas al terminar de pagar esto.`, 'warning');
+    }
+
+    async mostrarMenuDisposicion(estado) {
+        this.consola.print(`\n>>> DISPOSICIÓN DE EFECTIVO <<<`, 'warning');
+        this.consola.print(`⚠️  Esta operación tiene costos inmediatos y genera interés desde el primer día.`, 'warning');
+        this.consola.print(`- Crédito Disponible: $${estado.creditoDisponible.toFixed(2)}`);
+        this.consola.print(`- Comisión por Disposición: ${(estado.comisionPct * 100).toFixed(0)}% sobre el monto`);
+        this.consola.print(`- Cargo de Red (cajero externo): $${estado.cargoRedExterno.toFixed(2)}`);
+        this.consola.print(`- Tasa de interés mensual (sin gracia): ${(estado.tasaDisposicionMensual * 100).toFixed(2)}%`);
+
+        let numParsed = -1;
+        const maxDisponible = estado.creditoDisponible / (1 + estado.comisionPct); // Lo máximo que pueden sacar dado la comisión
+        while (numParsed <= 0 || numParsed > maxDisponible) {
+            const amountInput = await this.consola.prompt(`¿Cuánto efectivo deseas retirar? ($1 - $${Math.floor(maxDisponible)}, o '0' para cancelar):`);
+            numParsed = parseFloat(amountInput);
+            if (numParsed === 0) return { tipo: 'CANCELAR' };
+            if (isNaN(numParsed) || numParsed <= 0 || numParsed > maxDisponible) {
+                this.consola.print(`Monto inválido. Máximo retirable con comisión incluida: $${Math.floor(maxDisponible)}.`, 'warning');
+                numParsed = -1;
+            }
+        }
+
+        const comisionEstimada = Math.ceil(numParsed * estado.comisionPct * 100) / 100;
+        this.consola.print(`\nResumen: Recibes $${numParsed.toFixed(2)} | Comisión inmediata: $${comisionEstimada.toFixed(2)} | Total cargado a TDC: $${(numParsed + comisionEstimada).toFixed(2)}`, 'warning');
+
+        const usaCajero = await this.consola.prompt(`¿Usas cajero externo (+$${estado.cargoRedExterno.toFixed(2)})? [s/n]:`, ['s', 'n']);
+        return { tipo: 'DISPONER', monto: numParsed, usaCajeroExterno: usaCajero === 's' };
+    }
+
+    mostrarResolucionDisposicion(resultado) {
+        this.consola.print(`\n✅ Disposición de Efectivo Exitosa`, 'info');
+        this.consola.print(`  Efectivo recibido:  $${resultado.montoRecibido.toFixed(2)}`, 'info');
+        this.consola.print(`  Comisión cargada:   $${resultado.comision.toFixed(2)}`, 'warning');
+        if (resultado.cargoRed > 0) {
+            this.consola.print(`  Cargo Red Cajero:   $${resultado.cargoRed.toFixed(2)}`, 'warning');
+        }
+        this.consola.print(`⚠️  Recuerda: este saldo genera interés desde HOY, sin periodo de gracia.`, 'warning');
     }
 
     mostrarResolucionPagoMinimo() {
@@ -335,7 +378,7 @@ export class ControladorVista {
         this.consola.print(`El banco condona $${montoQuitado.toFixed(2)} (35% de tu deuda).`, 'warning');
         this.consola.print(`Solo pagarías: $${(deudaTotal - montoQuitado).toFixed(2)}`, 'warning');
         this.consola.print('⚠️ Consecuencia permanente: tu tarjeta se CANCELA y tendrás una mancha en el Buró por 6 años. -30 pts de Score.', 'error');
-        const resp = await this.consola.prompt('¿Aceptas la quita? [s = Sí, n = No, pago el total]:',  ['s', 'n']);
+        const resp = await this.consola.prompt('¿Aceptas la quita? [s = Sí, n = No, pago el total]:', ['s', 'n']);
         return resp === 's';
     }
 
