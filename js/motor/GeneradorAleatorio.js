@@ -30,8 +30,13 @@ export class GeneradorAleatorio {
         return Math.random() < config.probGusto ? 'Gusto' : 'Sorpresa';
     }
 
-    static generarGastoAleatorio(perfilEnum, categoria, claseGasto) {
-        const opciones = CatalogoGastos.getGastosPorCategoria(perfilEnum, categoria);
+    static generarGastoAleatorio(perfilEnum, categoria, claseGasto, excludeNames = []) {
+        let opciones = CatalogoGastos.getGastosPorCategoria(perfilEnum, categoria);
+        
+        if (excludeNames && excludeNames.length > 0) {
+            opciones = opciones.filter(o => !excludeNames.includes(o.nombre));
+        }
+
         if (!opciones || opciones.length === 0) return null;
         
         const idx = Math.floor(Math.random() * opciones.length);
@@ -39,7 +44,7 @@ export class GeneradorAleatorio {
         return new claseGasto(data);
     }
 
-    static generarOleadaSemanal(config, semana) {
+    static generarOleadaSemanal(config, semana, recurrentesGenerados = []) {
         const estructuraObj = config.estructuraSemanal.find(e => e.semana === semana);
         if (!estructuraObj) return [];
 
@@ -49,14 +54,18 @@ export class GeneradorAleatorio {
         let numRecurrentes = 0;
         if (estructuraObj.recurrentes === 'ALL') {
             const catalogo = CatalogoGastos.getGastosPorCategoria(config.perfil, "Recurrente");
-            numRecurrentes = Math.min(catalogo.length, this.randomBetween(config.recurrentesMin, config.recurrentesMax));
+            const disponibles = Math.max(0, catalogo.length - recurrentesGenerados.length);
+            numRecurrentes = Math.min(disponibles, this.randomBetween(config.recurrentesMin, config.recurrentesMax));
         } else {
             numRecurrentes = parseInt(estructuraObj.recurrentes) || 0;
         }
 
         for (let i = 0; i < numRecurrentes; i++) {
-            const g = this.generarGastoAleatorio(config.perfil, "Recurrente", GastoRecurrente);
-            if (g) gastos.push(g);
+            const g = this.generarGastoAleatorio(config.perfil, "Recurrente", GastoRecurrente, recurrentesGenerados);
+            if (g) {
+                gastos.push(g);
+                recurrentesGenerados.push(g.nombre);
+            }
         }
 
         // Basicos

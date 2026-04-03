@@ -123,7 +123,7 @@ export class ControladorVista {
         this.consola.print(msgs.join('  |  '));
         return await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
     }
-    
+
     mostrarResolucionPagoMinimo() {
         this.consola.print('Pagaste solo el mínimo. La deuda restante seguirá generando intereses si no liquidas pronto.', 'warning');
     }
@@ -167,7 +167,7 @@ export class ControladorVista {
 
         if (ventanaPagoAbierta) {
             opciones.push('p');
-            descP.push('p: **Pagar Tarjeta (Ventana Abierta)**');
+            descP.push('p: Pagar Tarjeta (Ventana Abierta)');
         }
 
         if (opciones.length === 0) {
@@ -179,7 +179,7 @@ export class ControladorVista {
 
         return await this.consola.prompt('Elige: ', opciones);
     }
-    
+
     mostrarResolucionGastoDebito() {
         this.consola.print('Pagado con débito/efectivo.');
     }

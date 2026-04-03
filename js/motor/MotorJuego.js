@@ -117,6 +117,8 @@ export class MotorJuego {
     }
 
     async iniciarStage() {
+        this.recurrentesStage = []; // Reiniciamos el registro de recurrentes mensuales
+
         // Ingreso por inicio de mes (Para esporádico o normal se reinicia efectivo)
         // En stage 1 el jugador se inicializó ya
         if (this.stageActual > 1) {
@@ -139,7 +141,7 @@ export class MotorJuego {
             this.actualizarUIHeaders();
             this.vista.mostrarInicioSemana(this.stageActual, this.semanaActual);
 
-            this.gastosSemana = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual);
+            this.gastosSemana = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual, this.recurrentesStage);
 
             if (this.gastosSemana.length === 0) {
                 this.vista.mostrarSemanaTranquila();
