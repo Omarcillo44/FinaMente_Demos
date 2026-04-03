@@ -8,6 +8,7 @@ export class TarjetaCredito {
         this.saldoInsoluto = 0;
         this.interesesGenerados = 0;
         this.comprasMSI = []; // Desactivado hasta que sepamos qué pedo con los MSI
+        this.pagoAcumuladoMes = 0; // Para la fecha límite silenciosa
     }
 
     tasaInteresMensual() {
@@ -68,6 +69,7 @@ export class TarjetaCredito {
     }
 
     recibirPago(monto) {
+        this.pagoAcumuladoMes += monto; // Registro del abono voluntario
         let montoRestante = monto;
 
         // 1. Prioridad Banxico: primero intereses e IVA de intereses
@@ -97,5 +99,13 @@ export class TarjetaCredito {
                 this.creditoDisponible += montoRestante; //Se libera parte del crédito consumido
             }
         }
+    }
+
+    evaluarSiCumplioPagoMinimo(pagoMinimoGenerado) {
+        return this.pagoAcumuladoMes >= pagoMinimoGenerado;
+    }
+
+    reiniciarCicloDePago() {
+        this.pagoAcumuladoMes = 0;
     }
 }

@@ -1,4 +1,3 @@
-import { VentanaPagoEnum } from '../motor/Enums.js';
 
 export class ControladorVista {
     constructor(consola) {
@@ -55,9 +54,7 @@ export class ControladorVista {
         this.consola.print(`>>> Score actualizado a: ${nuevoScore} pts <<<`, 'user-input');
     }
 
-    mostrarNotificacionVentanaPagoAbierta() {
-        this.consola.print("¡La Ventana de Pago de tu Tarjeta de Crédito está ABIERTA!");
-    }
+
 
     mostrarNotificacionVentanaPagoInmediata() {
         this.consola.print("¡Es Stage 6, recuento final!");
@@ -115,8 +112,8 @@ export class ControladorVista {
         this.consola.print("Juego cancelado por el usuario.");
     }
 
-    async mostrarMenuVentanaPago(estado) {
-        this.consola.print(`\n>>> VENTANA DE PAGO <<< (Finalizando Semana 2)`, 'warning');
+    async mostrarMenuAbonoTDC(estado) {
+        this.consola.print(`\n>>> ABONO A TARJETA DE CRÉDITO <<<`, 'warning');
         this.consola.print(`Estado Tarjeta:`);
         this.consola.print(`- Límite Total: $${estado.limiteCredito.toFixed(2)}`);
         this.consola.print(`- Crédito Disponible: $${estado.creditoDisponible.toFixed(2)}`);
@@ -136,10 +133,14 @@ export class ControladorVista {
             msgs.push(`[2] Pagar Cuenta Total ($${estado.deudaTotal.toFixed(2)})`);
         }
         opciones.push('3');
-        msgs.push(`[3] No pagar (Ignorar/Expirar)`);
+        msgs.push(`[3] Cancelar (Regresar a gastos)`);
 
         this.consola.print(msgs.join('  |  '));
         return await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
+    }
+    
+    mostrarAdvertenciaUltimoDia() {
+        this.consola.print(`\n⚠️ ¡CUIDADO! Es el último gasto de la semana 2. Si no has cubierto tu pago mínimo de la TDC, enfrentarás multas silenciosas al terminar de pagar esto.`, 'warning');
     }
     
     mostrarResolucionPagoMinimo() {
@@ -151,8 +152,9 @@ export class ControladorVista {
     }
 
     mostrarResolucionExpiracion(cargoTardio) {
-        this.consola.print('Has dejado expirar la ventana de pago.', 'error');
-        this.consola.print(`Se ha aplicado un cargo por pago tardío de $${cargoTardio.toFixed(2)}`, 'error');
+        this.consola.print('\n========================================', 'error');
+        this.consola.print('¡CORTE DE TARJETA! No realizaste el pago mínimo a tiempo.', 'error');
+        this.consola.print(`Multa por pago tardío cargada a la cuenta: $${cargoTardio.toFixed(2)}`, 'error');
         this.consola.print('Disminución de 20 pts de Score.', 'error');
     }
 
@@ -185,7 +187,7 @@ export class ControladorVista {
 
         if (ventanaPagoAbierta) {
             opciones.push('p');
-            descP.push('p: **Pagar Tarjeta (Ventana Abierta)**');
+            descP.push('p: Pagar Tarjeta (Abono Manual)');
         }
 
         if (opciones.length === 0) {

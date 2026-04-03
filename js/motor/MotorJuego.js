@@ -1,4 +1,4 @@
-import { PerfilEnum, EstadoJuegoEnum, VentanaPagoEnum } from './Enums.js';
+import { PerfilEnum, EstadoJuegoEnum } from './Enums.js';
 import { ConfigPerfil } from './ConfigPerfil.js';
 import { TarjetaCredito } from './TarjetaCredito.js';
 import { Jugador } from './Jugador.js';
@@ -13,7 +13,6 @@ export class MotorJuego {
         this.stageActual = 1; //Mes
         this.semanaActual = 1; //Semana
         this.estadoJuego = EstadoJuegoEnum.EN_CURSO; //Estado del juego
-        this.ventanaPago = VentanaPagoEnum.EXPIRADA; //¿Se puede pagar o no la TDC?
 
         this.gastosSemana = []; // logs
     }
@@ -103,14 +102,13 @@ export class MotorJuego {
                 this.vista.mostrarCambioScore('Score: Uso excesivo del límite (>= 90%). -5 pts', 'warning', this.jugador.scoreCrediticio);
             }
 
-            // Abriendo ventana de pago para el siguiente stage (en las semanas 1 y 2)
-            if (this.stageActual < 6) {
-                this.ventanaPago = VentanaPagoEnum.ABIERTA;
-                this.vista.mostrarNotificacionVentanaPagoAbierta();
-            } else {
-                this.ventanaPago = VentanaPagoEnum.INMEDIATA;
+            // Reiniciar el tracker de abonos para la tarjeta de crédito en el nuevo ciclo
+            this.jugador.tarjeta.reiniciarCicloDePago();
+            
+            if (this.stageActual === 6) {
+                // Forzar un pago voluntario final al terminar el último stage
                 this.vista.mostrarNotificacionVentanaPagoInmediata();
-                await this.manejarVentanaDePago(); // Forzar en S6
+                await this.realizarAbonoVoluntarioTDC();
             }
 
             this.stageActual++;
@@ -147,6 +145,11 @@ export class MotorJuego {
 
             // Mientras queden gastos por enfrentar
             while (this.gastosSemana.length > 0) {
+                // Advertencia de último gasto antes de la fecha límite
+                if (this.semanaActual === 2 && this.gastosSemana.length === 1 && (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0)) {
+                    this.vista.mostrarAdvertenciaUltimoDia();
+                }
+
                 //Espera a que el jugador elija un gasto para enfrentarlo
                 const indexElegido = await this.vista.mostrarSelectorGastos(this.gastosSemana);
                 //Se obtiene el gasto elegido
@@ -160,9 +163,16 @@ export class MotorJuego {
                 this.gastosSemana.splice(indexElegido, 1); //Se elimina el gasto de la lista
             }
 
-            // Cierre de ventana de pago al FINAL de la semana 2 si hay pago pendiente
-            if (this.semanaActual === 2 && this.ventanaPago === VentanaPagoEnum.ABIERTA) {
-                await this.manejarVentanaDePago();
+            // Revisión silenciosa del pago mínimo al final de la semana 2
+            if (this.semanaActual === 2) {
+                const tarjeta = this.jugador.tarjeta;
+                const pagoMinimo = tarjeta.calcularPagoMinimo();
+                if (pagoMinimo > 0 && !tarjeta.evaluarSiCumplioPagoMinimo(pagoMinimo)) {
+                    const cargo = tarjeta.aplicarCargoTardio();
+                    this.vista.mostrarResolucionExpiracion(cargo);
+                    this.jugador.modificarScore(-20);
+                    this.vista.mostrarCambioScore(null, null, this.jugador.scoreCrediticio);
+                }
             }
 
             // Preguntar si terminar el juego en cualquier momento
@@ -175,7 +185,7 @@ export class MotorJuego {
         }
     }
 
-    async manejarVentanaDePago() {
+    async realizarAbonoVoluntarioTDC() {
         const tarjeta = this.jugador.tarjeta;
         const pagoMinimo = tarjeta.calcularPagoMinimo();
         const deudaTotal = tarjeta.saldoInsoluto + tarjeta.interesesGenerados * 1.16;
@@ -190,7 +200,7 @@ export class MotorJuego {
                 efectivoDisponible: this.jugador.efectivoDisponible
             };
 
-            const eleccion = await this.vista.mostrarMenuVentanaPago(estadoTarjeta);
+            const eleccion = await this.vista.mostrarMenuAbonoTDC(estadoTarjeta);
 
             if (eleccion === '1') {
                 this.jugador.pagarDeudaTDC(pagoMinimo);
@@ -199,19 +209,16 @@ export class MotorJuego {
                 this.evaluarAumentoLinea();
             } else if (eleccion === '2') {
                 this.jugador.pagarDeudaTDC(deudaTotal);
-                const puntos = this.semanaActual === 1 ? 10 : 5; // En Stage 6 o S2
+                const puntos = this.semanaActual === 1 ? 10 : 5; 
                 this.vista.mostrarResolucionPagoTotal();
                 this.jugador.modificarScore(puntos);
                 this.vista.mostrarCambioScore(null, null, this.jugador.scoreCrediticio);
                 this.evaluarAumentoLinea();
-            } else {
-                const cargo = tarjeta.aplicarCargoTardio();
-                this.vista.mostrarResolucionExpiracion(cargo);
-                this.jugador.modificarScore(-20);
-                this.vista.mostrarCambioScore(null, null, this.jugador.scoreCrediticio);
+            } else if (eleccion === '3') {
+                // Canceló el depósito voluntario
+                return;
             }
         }
-        this.ventanaPago = VentanaPagoEnum.EXPIRADA;
         this.actualizarUIHeaders();
     }
 
@@ -232,9 +239,9 @@ export class MotorJuego {
             creditoDisponible: this.jugador.tarjeta.creditoDisponible
         };
         const puedeIgnorar = (gasto instanceof GastoGusto); //Checa el valor booleano de si es un gasto de gusto
-        const ventanaPagoAbierta = (this.ventanaPago === VentanaPagoEnum.ABIERTA && (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0));
+        const tieneDeuda = (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0);
 
-        const decision = await this.vista.mostrarMenuGasto(gasto, estadoVirtual, puedeIgnorar, ventanaPagoAbierta); //React
+        const decision = await this.vista.mostrarMenuGasto(gasto, estadoVirtual, puedeIgnorar, tieneDeuda); //React
 
         //Si no hay dinero para pagar nada
         if (decision === null) {
@@ -245,7 +252,7 @@ export class MotorJuego {
 
         if (decision === 'p') {
             // 1. Abre el menú para pagar la deuda de la tarjeta
-            await this.manejarVentanaDePago();
+            await this.realizarAbonoVoluntarioTDC();
 
             // 2. Vuelve a ejecutar TODO este mismo método para el mismo gasto
             // Lo llama recursivamente

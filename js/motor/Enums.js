@@ -11,8 +11,3 @@ export const EstadoJuegoEnum = {
     COMPLETADO: 'COMPLETADO'
 };
 
-export const VentanaPagoEnum = {
-    ABIERTA: 'ABIERTA',
-    EXPIRADA: 'EXPIRADA',
-    INMEDIATA: 'INMEDIATA'
-};
