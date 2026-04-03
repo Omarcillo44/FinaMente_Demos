@@ -13,11 +13,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Spotify Premium",
@@ -26,11 +30,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Netflix Básico",
@@ -39,11 +47,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "PS Plus / Xbox Live",
@@ -52,11 +64,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Canva Pro",
@@ -65,11 +81,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Pasajes de la semana",
@@ -78,11 +98,24 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": false,
-      "localizacion": "Transporte",
       "tags": [
         "aburrido",
         "demorado"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1
+        },
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Centro comercial": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Comidas en cafetería",
@@ -91,10 +124,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Escuela",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Copias y engargolados",
@@ -103,10 +140,20 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Escuela",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1.2
+        },
+        "Supermercado": {
+          "modMonto": 0.9
+        },
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Material para maqueta",
@@ -115,10 +162,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Escuela",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Útiles escolares",
@@ -127,10 +178,20 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Escuela",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1.2
+        },
+        "Supermercado": {
+          "modMonto": 0.9
+        },
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Salida al cine",
@@ -139,10 +200,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Skin en videojuego",
@@ -151,11 +219,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "placer",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Antojo Starbucks",
@@ -164,10 +236,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Camiseta nueva",
@@ -176,10 +255,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Salida por tacos",
@@ -188,10 +271,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": false,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Cable del celular roto",
@@ -200,11 +290,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "urgente",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Taxi por lluvia",
@@ -213,11 +307,27 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": false,
-      "localizacion": "Transporte",
       "tags": [
         "urgente",
         "demorado"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1
+        },
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Cooperación imprevista",
@@ -226,10 +336,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Reposición de credencial",
@@ -238,10 +352,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Medicamento ligero",
@@ -250,10 +368,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Consultorio",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     }
   ],
   "TRABAJADOR": [
@@ -264,11 +386,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Suscripción Gym",
@@ -277,10 +403,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Internet de casa",
@@ -289,11 +419,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Bundle Streaming",
@@ -302,11 +436,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Aporte fijo al hogar",
@@ -315,10 +453,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Transporte / Gasolina",
@@ -327,11 +469,27 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Transporte",
       "tags": [
         "aburrido",
         "demorado"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1
+        },
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Despensa personal",
@@ -340,10 +498,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Supermercado",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Comidas cerca de oficina",
@@ -352,10 +517,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Útiles y certificaciones",
@@ -364,10 +536,20 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Escuela",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1.2
+        },
+        "Supermercado": {
+          "modMonto": 0.9
+        },
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Aporte extra de limpieza",
@@ -376,10 +558,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Ropa y calzado",
@@ -388,10 +574,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Salida de fin de semana",
@@ -400,10 +593,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Videojuego estreno",
@@ -412,11 +609,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "placer",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Cena restaurante",
@@ -425,10 +626,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Accesorio Tech",
@@ -437,10 +642,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Reparación de laptop",
@@ -449,10 +661,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Consulta y receta",
@@ -461,10 +677,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Consultorio",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Multa o trámite",
@@ -473,10 +693,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Regalo de cumpleaños",
@@ -485,10 +709,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Taxi de madrugada",
@@ -497,11 +725,27 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": false,
-      "localizacion": "Transporte",
       "tags": [
         "urgente",
         "demorado"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1
+        },
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     }
   ],
   "INDEPENDIENTE": [
@@ -512,10 +756,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Servicios (Agua, Luz, Gas)",
@@ -524,10 +772,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Plan Celular Premium",
@@ -536,11 +788,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Internet Alta Velocidad",
@@ -549,11 +805,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Gym / Club Deportivo",
@@ -562,10 +822,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Despensa quincenal",
@@ -574,10 +838,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Supermercado",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Transporte / Uber",
@@ -586,11 +857,27 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Transporte",
       "tags": [
         "aburrido",
         "demorado"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        },
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Oficina": {
+          "modMonto": 1
+        },
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Artículos de limpieza",
@@ -599,10 +886,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Comidas del trabajo",
@@ -611,10 +902,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Higiene y cuidado personal",
@@ -623,10 +921,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Boleto de Concierto",
@@ -635,10 +937,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Ropa de marca",
@@ -647,10 +956,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Cena en lugar exclusivo",
@@ -659,10 +975,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Viaje exprés",
@@ -671,10 +991,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Electrodoméstico menor",
@@ -683,10 +1007,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Emergencia dental",
@@ -695,10 +1023,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Consultorio",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Reparación de coche/refri",
@@ -707,10 +1039,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Mantenimiento hogar",
@@ -719,10 +1055,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Medicina especializada",
@@ -731,10 +1071,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Seguro / Deducible menor",
@@ -743,10 +1087,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Consultorio",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     }
   ],
   "ESPORADICO": [
@@ -757,11 +1105,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Spotify Estudiante",
@@ -770,11 +1122,15 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Recámara",
       "tags": [
         "aburrido",
         "digital"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Suscripción económica",
@@ -783,10 +1139,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "iCloud / Drive",
@@ -795,10 +1155,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Membresía escolar",
@@ -807,10 +1171,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Recámara": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Pasajes en bus",
@@ -819,11 +1187,27 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": false,
-      "localizacion": "Transporte",
       "tags": [
         "aburrido",
         "demorado"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1
+        },
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Comida callejera",
@@ -832,10 +1216,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": false,
-      "localizacion": "Centro comercial",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Útiles sueltos",
@@ -844,10 +1235,20 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Escuela",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1.2
+        },
+        "Supermercado": {
+          "modMonto": 0.9
+        },
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Aporte simbólico casa",
@@ -856,10 +1257,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Higiene básica",
@@ -868,10 +1273,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "aburrido"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Cine en promoción",
@@ -880,10 +1289,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Antojo dulce",
@@ -892,10 +1308,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Salida barata con amigos",
@@ -904,10 +1327,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Ropa de segunda mano",
@@ -916,10 +1343,17 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Centro comercial",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Recámara": {
+          "modMonto": 1.15
+        }
+      }
     },
     {
       "nombre": "Juego indie en oferta",
@@ -928,10 +1362,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": false,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "placer"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Llanta de bici / Taxi",
@@ -940,11 +1378,27 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": false,
-      "localizacion": "Transporte",
       "tags": [
         "urgente",
         "demorado"
-      ]
+      ],
+      "opcionesCompra": {
+        "Escuela": {
+          "modMonto": 1
+        },
+        "Casa": {
+          "modMonto": 1
+        },
+        "Supermercado": {
+          "modMonto": 1
+        },
+        "Centro comercial": {
+          "modMonto": 1
+        },
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Medicamento genérico",
@@ -953,10 +1407,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Consultorio",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Consultorio": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Reposición de llaves",
@@ -965,10 +1423,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Cooperación urgente",
@@ -977,10 +1439,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Genérico",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     },
     {
       "nombre": "Reparación de zapatos",
@@ -989,10 +1455,14 @@ export const catalogoGastosDatos = {
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
-      "localizacion": "Casa",
       "tags": [
         "urgente"
-      ]
+      ],
+      "opcionesCompra": {
+        "Casa": {
+          "modMonto": 1
+        }
+      }
     }
   ]
 };
@@ -1001,7 +1471,7 @@ export class CatalogoGastos {
   static generarGastoAleatorio(perfilEnum, categoria, claseGasto, localizacion = null) {
     const opciones = CatalogoGastos.getGastosPorCategoria(perfilEnum, categoria, localizacion);
     if (!opciones || opciones.length === 0) return null;
-    
+
     const idx = Math.floor(Math.random() * opciones.length);
     const data = opciones[idx];
     return new claseGasto(data);
@@ -1011,8 +1481,8 @@ export class CatalogoGastos {
     const gastos = catalogoGastosDatos[perfilEnum];
     let filtrados = gastos.filter(g => g.categoria === categoria);
     if (localizacion) {
-        const subFiltro = filtrados.filter(g => g.localizacion === localizacion);
-        if (subFiltro.length > 0) filtrados = subFiltro;
+      const subFiltro = filtrados.filter(g => g.opcionesCompra && Object.keys(g.opcionesCompra).includes(localizacion));
+      if (subFiltro.length > 0) filtrados = subFiltro;
     }
     return filtrados;
   }

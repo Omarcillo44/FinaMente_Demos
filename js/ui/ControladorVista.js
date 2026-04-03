@@ -80,32 +80,114 @@ export class ControladorVista {
         this.consola.print(`========================================\n`, 'info');
     }
 
-    async mostrarSelectorGastos(gastosDisponibles) {
+    async mostrarSelectorLocalizaciones(poolGastos) {
         this.consola.print(`\n========================================`, 'system');
-        this.consola.print(`📝 TAREAS PENDIENTES DE LA SEMANA`, 'system');
+        this.consola.print(`🗺️ LUGARES DISPONIBLES PARA VISITAR`, 'system');
         this.consola.print(`========================================`, 'system');
-        
+
+        let locs = new Set();
+        poolGastos.forEach(g => {
+            Object.keys(g.opcionesCompra).forEach(l => locs.add(l));
+        });
+        const locArray = Array.from(locs);
+
         let opciones = [];
         let indexString = [];
-        
-        for (let i = 0; i < gastosDisponibles.length; i++) {
-            const gasto = gastosDisponibles[i];
-            const num = (i + 1).toString();
-            opciones.push(`[${num}] ${gasto.nombre} (${gasto.categoria})`);
-            indexString.push(num);
+
+        if (locArray.length === 0) {
+            this.consola.print(`No quedan gastos pendientes ubicables en el mapa.`, 'info');
+        } else {
+            for (let i = 0; i < locArray.length; i++) {
+                const num = (i + 1).toString();
+                const count = poolGastos.filter(g => Object.keys(g.opcionesCompra).includes(locArray[i])).length;
+                opciones.push(`[${num}] Viajar a: ${locArray[i]} (${count} mandados por hacer)`);
+                indexString.push(num);
+            }
         }
-        opciones.push(`[p] Usar Banca Móvil (Abonar a TDC)`);
+
+        opciones.push(`\n[p] Usar Banca Móvil`);
         indexString.push('p');
-        
-        this.consola.print(opciones.join('  |  '));
-        const opcionElegida = await this.consola.prompt(`Elige a qué enfrentar primero (1-${gastosDisponibles.length}):`, indexString);
-        
+        opciones.push(`[a] Terminar semana (Avanzar el tiempo)`);
+        indexString.push('a');
+
+        this.consola.print(opciones.join('\n'));
+        const opcionElegida = await this.consola.prompt(`Elige tu destino:`, indexString);
+
         if (opcionElegida === 'p') return 'p';
-        return parseInt(opcionElegida) - 1;
+        if (opcionElegida === 'a') return 'a';
+        return locArray[parseInt(opcionElegida) - 1]; // Devuelve el string del lugar
     }
 
-    async confirmarAvance() {
-        return await this.consola.prompt("[Enter] para continuar, o escribe 'salir' para abandonar:", ['salir', '']);
+    async mostrarMenuBatalla(batalla, estado) {
+        this.consola.print(`\n========================================`, 'system');
+        this.consola.print(`📍 BATALLA: ${batalla.localizacion.toUpperCase()}`, 'system');
+        this.consola.print(`========================================`, 'system');
+
+        this.consola.print(`\n[Sinergias Activas]`);
+        if (batalla.notasSinergia.length > 0) {
+            batalla.notasSinergia.forEach(n => this.consola.print(`> ${n}`, 'info'));
+        } else {
+            this.consola.print(`> Ninguna sinergia ambiental detectada en esta localización.`, 'system');
+        }
+
+        this.consola.print(`\n[Tus Recursos] Efectivo: $${estado.efectivoDisponible.toFixed(2)} | Crédito: $${estado.creditoDisponible.toFixed(2)}`);
+
+        let opciones = [];
+        let indexString = [];
+
+        this.consola.print(`\n[Inventario de esta locación]`);
+        for (let i = 0; i < batalla.gastos.length; i++) {
+            const gasto = batalla.gastos[i];
+            const num = (i + 1).toString();
+            opciones.push(`[${num}] Inspeccionar y Pagar: ${gasto.nombre} ($${gasto.montoModificado.toFixed(2)})`);
+            indexString.push(num);
+        }
+
+        // Calcular el descuento por comprar en combo
+        const base = batalla.totalSinPagar;
+        let efFinal = 0;
+        batalla.gastos.forEach(g => {
+            let descFrac = g.descuentoEfectivo || 0;
+            let descFijo = g.descuentoFijoEfectivo || 0;
+            efFinal += Math.max(0, g.montoModificado * (1 - descFrac) - descFijo);
+        });
+        const suffix = efFinal < base ? " - Sinergias Aplicadas" : "";
+
+        opciones.push(`\n[t] Comprar TODO lo de aquí con Tarjeta de Crédito ($${base.toFixed(2)})`);
+        indexString.push('t');
+
+        opciones.push(`[e] Comprar TODO con Efectivo/Débito ($${efFinal.toFixed(2)}${suffix})`);
+        indexString.push('e');
+
+        opciones.push(`[x] Salir de la Batalla y regresar al Mapa`);
+        indexString.push('x');
+
+        this.consola.print(opciones.join('\n'));
+        const opt = await this.consola.prompt(`Elige una acción detallada o de combo:`, indexString);
+
+        if (opt === 't' || opt === 'e' || opt === 'x') return opt;
+        return parseInt(opt) - 1; // Return Sub-Index
+    }
+
+    async confirmarAvance(estadoExtra) {
+        if (estadoExtra) {
+            this.consola.print(`\n--- RESUMEN ACTUAL ---`, 'system');
+            this.consola.print(`🤍 HP Real: $${estadoExtra.hp.toFixed(2)}`, 'info');
+            this.consola.print(`⭐ Score Crediticio: ${estadoExtra.score} pts`, 'info');
+            this.consola.print(`💳 Pago Mínimo TDC: $${estadoExtra.pagoMinimo.toFixed(2)}`, 'info');
+            this.consola.print(`💸 Ingreso Mensual: $${estadoExtra.ingresoMensual.toFixed(2)}`, 'info');
+
+            if (estadoExtra.retroalimentacion && estadoExtra.retroalimentacion.length > 0) {
+                this.consola.print(`↳ Actividad Reciente:`, 'system');
+                estadoExtra.retroalimentacion.forEach(msg => {
+                    this.consola.print(` * ${msg}`, 'prompt');
+                });
+            } else {
+                this.consola.print(`↳ Actividad Reciente: Sin novedades en tu score o límite.`, 'system');
+            }
+            this.consola.print(`----------------------`, 'system');
+        }
+        return await this.consola.prompt("\n[Enter] para continuar la siguiente semana, o escribe 'salir' para detener el juego:", ['salir', '']);
     }
 
     mostrarCancelacionUsuario() {
@@ -157,7 +239,7 @@ export class ControladorVista {
 
         return { tipo: opcion === '1' ? 'MINIMO' : opcion === '2' ? 'TOTAL' : 'CANCELAR' };
     }
-    
+
     mostrarAdvertenciaUltimoDia() {
         this.consola.print(`\n⚠️ ¡CUIDADO! Es el último gasto de la semana 2. Si no has cubierto tu pago mínimo de la TDC, enfrentarás multas silenciosas al terminar de pagar esto.`, 'warning');
     }
@@ -190,49 +272,33 @@ export class ControladorVista {
         this.consola.print(`Tu límite de crédito ha sido aumentado de $${limiteViejo.toFixed(2)} a $${limiteNuevo.toFixed(2)}`, 'prompt');
     }
 
-    async mostrarMenuGasto(gasto, estado, puedeIgnorar, ventanaPagoAbierta) {
+    async mostrarMenuGasto(gasto, estado, puedeIgnorar, tieneDeuda, batallaContext = null) {
         const montoActivo = gasto.montoModificado !== undefined ? gasto.montoModificado : gasto.monto;
-        this.consola.print(`\n[¡GASTO!] Te enfrentas a un pago: ${gasto.nombre}`);
-        if (gasto.esGrupo) {
-            this.consola.print(`Misión Conjunta con ${gasto.gastos.length} tareas asociadas:`);
-            gasto.gastos.forEach(g => {
-                let montoImp = g.montoModificado !== undefined ? g.montoModificado : g.monto;
-                this.consola.print(`  - ${g.nombre} ($${montoImp.toFixed(2)})`);
-            });
-            gasto.notasSinergia.forEach(nota => {
-                this.consola.print(`> ${nota}`, 'info');
-            });
-        }
-        this.consola.print(`Categoría: ${gasto.categoria} | Monto Total: $${montoActivo.toFixed(2)}`);
+        this.consola.print(`\n[¡GASTO INDIVIDUAL!] Estás inspeccionando: ${gasto.nombre}`);
+
+        let descFrac = (batallaContext && gasto.descuentoEfectivo) ? gasto.descuentoEfectivo : 0;
+        let descFijo = (batallaContext && gasto.descuentoFijoEfectivo) ? gasto.descuentoFijoEfectivo : 0;
+        let montoDebito = Math.max(0, montoActivo * (1 - descFrac) - descFijo);
+
+        this.consola.print(`Categoría: ${gasto.categoria} | Monto Base/Ambiental: $${montoActivo.toFixed(2)}`);
 
         let opciones = [];
         let descP = [];
 
-        let montoDebito = gasto.esGrupo ? gasto.montoModificadoEfectivo : montoActivo;
-
         if (estado.efectivoDisponible >= montoDebito) {
             opciones.push('d');
-            if (gasto.esGrupo && montoDebito < montoActivo) {
-                 descP.push(`d: Débito / Efectivo ($${montoDebito.toFixed(2)})`);
+            if (montoDebito < montoActivo) {
+                descP.push(`d: Débito / Efectivo ($${montoDebito.toFixed(2)} - Sinergia Aplicada)`);
             } else {
-                 descP.push(`d: Débito / Efectivo`);
+                descP.push(`d: Débito / Efectivo`);
             }
         }
 
         if (estado.creditoDisponible >= montoActivo && gasto.aceptaTDC !== false) {
-            // Evaluamos aceptaTDC sólo si es individual por ahora, o si es grupo y todos aceptan
-            let aceptaCredito = true;
-            if (gasto.esGrupo) {
-                aceptaCredito = gasto.gastos.every(g => g.aceptaTDC !== false);
-            } else {
-                aceptaCredito = gasto.aceptaTDC !== false;
-            }
-            if (aceptaCredito) {
-                opciones.push('t');
-                descP.push('t: Tarjeta Credito');
-            } else {
-                this.consola.print(`(❗) Este gasto o grupo tiene restricciones y NO se puede pagar con Tarjeta`, 'warning');
-            }
+            opciones.push('t');
+            descP.push('t: Tarjeta Credito');
+        } else if (gasto.aceptaTDC === false) {
+            this.consola.print(`(❗) Este gasto tiene restricciones y NO se puede pagar con Tarjeta`, 'warning');
         }
 
         if (puedeIgnorar && !gasto.bloquearIgnorar) {
@@ -240,16 +306,12 @@ export class ControladorVista {
             descP.push('i: Ignorar (Solo aplica a Gustos)');
         }
 
-        // La opción p siempre aparece (se quitó la condicional de deuda)
-        opciones.push('p');
-        descP.push('p: Pagar Tarjeta (Abono Manual)');
-
         if (opciones.length === 0) {
             return null; // Indica que no puede pagar
         }
 
         this.consola.print(`Efectivo: $${estado.efectivoDisponible.toFixed(2)} | Crédito: $${estado.creditoDisponible.toFixed(2)}`);
-        this.consola.print(`¿Con qué pagas? -> ${descP.join(' | ')}`);
+        this.consola.print(`¿Con qué pagas? \n${descP.join('\n')}`);
 
         return await this.consola.prompt('Elige: ', opciones);
     }

@@ -6,7 +6,7 @@ export class Gasto {
         this.esObligatorio = datos.esObligatorio;
         this.aceptaMSI = datos.aceptaMSI;
         this.aceptaTDC = datos.aceptaTDC !== undefined ? datos.aceptaTDC : true;
-        this.localizacion = datos.localizacion || 'Genérico';
+        this.opcionesCompra = datos.opcionesCompra || { 'Genérico': { modMonto: 1.0 } };
         this.tags = datos.tags || [];
         this.montoModificado = this.monto; // Puede cambiar por sinergias u opciones de eventos
     }
