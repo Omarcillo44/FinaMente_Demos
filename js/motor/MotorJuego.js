@@ -121,7 +121,11 @@ export class MotorJuego {
     }
 
     async iniciarStage() {
+        this.recurrentesStage = []; // Reiniciamos el registro de recurrentes mensuales
+
+        // Ingreso por inicio de mes (Para esporádico o normal se reinicia efectivo)
         // Sólo afecta a los stages después del primero
+        // En stage 1 el jugador se inicializó ya
         if (this.stageActual > 1) {
             let nuevoIngreso;
             if (this.config.perfil === PerfilEnum.ESPORADICO) { //Esporadico
@@ -140,7 +144,7 @@ export class MotorJuego {
             this.vista.mostrarInicioSemana(this.stageActual, this.semanaActual); //React
 
             // Genera los gastos de la semana actual
-            const gastosPlanos = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual);
+            const gastosPlanos = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual, this.recurrentesStage);
             
             // Se agrupan y calculan sinergias
             this.gastosSemana = GestorSinergias.agruparGastos(gastosPlanos);

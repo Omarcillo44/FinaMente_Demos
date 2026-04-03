@@ -161,7 +161,7 @@ export class ControladorVista {
     mostrarAdvertenciaUltimoDia() {
         this.consola.print(`\n⚠️ ¡CUIDADO! Es el último gasto de la semana 2. Si no has cubierto tu pago mínimo de la TDC, enfrentarás multas silenciosas al terminar de pagar esto.`, 'warning');
     }
-    
+
     mostrarResolucionPagoMinimo() {
         this.consola.print('Pagaste solo el mínimo. La deuda restante seguirá generando intereses si no liquidas pronto.', 'warning');
     }
@@ -253,7 +253,7 @@ export class ControladorVista {
 
         return await this.consola.prompt('Elige: ', opciones);
     }
-    
+
     mostrarResolucionGastoDebito() {
         this.consola.print('Pagado con débito/efectivo.');
     }

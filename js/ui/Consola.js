@@ -31,6 +31,13 @@ export class Consola {
                 }
             }
         });
+
+        // Asegurar que el input recupere el foco al dar clic en cualquier parte
+        document.addEventListener('click', () => {
+            if (!this.inputField.disabled) {
+                this.inputField.focus();
+            }
+        });
     }
 
     print(text, styleClass = 'system') {
@@ -76,6 +83,10 @@ export class Consola {
     }
 
     async sleep(ms) {
+        // Evitamos retrasos extremos si el usuario cambia de pestaña
+        if (document.hidden) {
+            return Promise.resolve();
+        }
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
