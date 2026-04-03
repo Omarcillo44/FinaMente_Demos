@@ -1,3 +1,15 @@
+/*
+Localizaciones:
+* Escuela
+* Transporte
+* Consultorio
+* Centro comercial
+* Recamara
+* Supermercado
+* Casa-Oficina
+*/
+
+
 import { GastoBasico, GastoGusto, GastoSorpresa } from './Gasto.js';
 import { GeneradorAleatorio } from './GeneradorAleatorio.js';
 
@@ -44,7 +56,7 @@ class SinergiaEscuela extends SinergiaLocalizacion {
         }
         this.grupo.notasSinergia.push("Efectivo en escuela: Evitas el cobro extra de comisión por usar terminal (ahorro 10% en cosas físicas).");
         this.grupo.gastos.forEach(g => {
-            if (g.categoria === 'Básico' && !g.tags.includes('digital')) {
+            if (g.categoria === 'Básico' && g.tags.includes('fisico')) {
                 g.descuentoEfectivo = (g.descuentoEfectivo || 0) + 0.10;
             }
         });
@@ -96,7 +108,7 @@ class SinergiaCentroComercial extends SinergiaLocalizacion {
         }
         this.grupo.notasSinergia.push("Presupuesto físico: Al pagar de contado llevas el control visual de tu límite en la cartera y evitas gastos invisibles (ahorras 10% en lujos tangibles).");
         this.grupo.gastos.forEach(g => {
-            if (g.categoria === 'Gusto' && !g.tags.includes('digital')) {
+            if (g.categoria === 'Gusto' && g.tags.includes('fisico')) {
                 g.descuentoEfectivo = (g.descuentoEfectivo || 0) + 0.10;
             }
         });

@@ -19,7 +19,8 @@ export class Consola {
                 
                 if (this.inputResolver) {
                     if (command) {
-                        this.print(`> ${command}`, 'user-input');
+                        const escapedCmd = command.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        this.print(`> ${escapedCmd}`, 'user-input');
                     } else {
                         this.print(`> [ENTER]`, 'user-input');
                     }
@@ -43,7 +44,7 @@ export class Consola {
     print(text, styleClass = 'system') {
         const line = document.createElement('div');
         line.className = `line ${styleClass}`;
-        line.textContent = text;
+        line.innerHTML = text;
         this.outputDiv.appendChild(line);
         this.scrollToBottom();
     }

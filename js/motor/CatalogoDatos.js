@@ -125,7 +125,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Escuela": {
@@ -141,7 +142,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Escuela": {
@@ -156,14 +158,15 @@ export const catalogoGastosDatos = {
       }
     },
     {
-      "nombre": "Material para maqueta",
+      "nombre": "Material escolar",
       "categoria": "Básico",
       "monto": 200,
       "esObligatorio": true,
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Escuela": {
@@ -179,7 +182,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Escuela": {
@@ -201,7 +205,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -237,7 +242,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -256,7 +262,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -270,9 +277,10 @@ export const catalogoGastosDatos = {
       "monto": 180,
       "esObligatorio": false,
       "aceptaMSI": false,
-      "aceptaTDC": false,
+      "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -337,7 +345,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -353,7 +362,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -369,7 +379,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Consultorio": {
@@ -499,7 +510,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Supermercado": {
@@ -518,7 +530,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -537,7 +550,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Escuela": {
@@ -559,7 +573,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -575,7 +590,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -594,7 +610,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -607,7 +624,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 1200,
       "esObligatorio": false,
-      "aceptaMSI": false,
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "tags": [
         "placer",
@@ -627,7 +644,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -643,7 +661,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -659,10 +678,11 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 1200,
       "esObligatorio": true,
-      "aceptaMSI": false,
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -678,7 +698,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Consultorio": {
@@ -694,7 +715,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -710,7 +732,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -839,7 +862,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Supermercado": {
@@ -887,7 +911,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -903,7 +928,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -922,7 +948,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -935,10 +962,11 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 1500,
       "esObligatorio": false,
-      "aceptaMSI": false,
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -954,10 +982,11 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 1200,
       "esObligatorio": false,
-      "aceptaMSI": false,
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -976,7 +1005,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -989,10 +1019,11 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 2200,
       "esObligatorio": false,
-      "aceptaMSI": false,
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1008,7 +1039,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1021,10 +1053,11 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 1800,
       "esObligatorio": true,
-      "aceptaMSI": false,
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Consultorio": {
@@ -1040,7 +1073,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1056,7 +1090,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1072,7 +1107,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1085,10 +1121,11 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 2500,
       "esObligatorio": true,
-      "aceptaMSI": false,
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Consultorio": {
@@ -1217,7 +1254,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": false,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -1236,7 +1274,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Escuela": {
@@ -1258,7 +1297,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1274,7 +1314,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "aburrido"
+        "aburrido",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1290,7 +1331,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -1309,7 +1351,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -1328,7 +1371,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1344,7 +1388,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "fisico"
       ],
       "opcionesCompra": {
         "Centro comercial": {
@@ -1363,7 +1408,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "placer"
+        "placer",
+        "digital"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1408,7 +1454,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Consultorio": {
@@ -1424,7 +1471,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1440,7 +1488,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {
@@ -1456,7 +1505,8 @@ export const catalogoGastosDatos = {
       "aceptaMSI": false,
       "aceptaTDC": true,
       "tags": [
-        "urgente"
+        "urgente",
+        "fisico"
       ],
       "opcionesCompra": {
         "Casa": {

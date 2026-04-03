@@ -121,12 +121,17 @@ export class MotorJuego {
 
         if (this.estadoJuego !== EstadoJuegoEnum.GAME_OVER) {
             this.estadoJuego = EstadoJuegoEnum.COMPLETADO;
-            this.vista.mostrarVictoria(this.jugador.calcularHP(), this.jugador.scoreCrediticio);
+            this.vista.mostrarVictoria(this.jugador.calcularHP(), this.jugador.scoreCrediticio, this.jugador.calidadVida);
         }
     }
 
     async iniciarStage() {
         this.recurrentesStage = []; // Reiniciamos el registro de recurrentes mensuales
+
+        // Procesar mensualidades MSI de meses anteriores
+        if (this.jugador) {
+            this.jugador.tarjeta.procesarMensualidadesMSI();
+        }
 
         // Ingreso por inicio de mes (Para esporádico o normal se reinicia efectivo)
         // Sólo afecta a los stages después del primero
@@ -153,8 +158,11 @@ export class MotorJuego {
             
             // Mientras no se avance de semana
             while (true) {
-                if (this.semanaActual === 2 && this.poolGastosSemana.length === 1 && (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0)) {
-                    this.vista.mostrarAdvertenciaUltimoDia();
+                if (this.semanaActual === 2 && this.poolGastosSemana.length <= 1) {
+                    const pagoMinimo = this.jugador.tarjeta.calcularPagoMinimo();
+                    if (pagoMinimo > 0 && !this.jugador.tarjeta.evaluarSiCumplioPagoMinimo(pagoMinimo)) {
+                        this.vista.mostrarAdvertenciaUltimoDia();
+                    }
                 }
 
                 //Espera a que el jugador elija un destino en el mapa
@@ -209,6 +217,21 @@ export class MotorJuego {
                     this.jugador.modificarScore(-20);
                     this.vista.mostrarCambioScore('Penalización por no cubrir pago mínimo a tiempo. -20 pts', 'warning', this.jugador.scoreCrediticio);
                     this.mensajesRetroalimentacion.push('-20 pts: No cubriste el pago mínimo a tiempo en la semana 2.');
+
+                    // Consecuencias adicionales si hay MSI activos
+                    if (tarjeta.comprasMSI.length > 0) {
+                        const esBolaDNieve = tarjeta.mesesIncumplimientoMSI >= 1; // Será el 2do si ya hay 1
+                        const comisionMSI = tarjeta.aplicarConsequenciasMSI();
+                        this.vista.mostrarConsequenciaMSI(comisionMSI, esBolaDNieve);
+                        // Buró de Crédito: -15 adicionales si hay MSI
+                        this.jugador.modificarScore(-15);
+                        this.vista.mostrarCambioScore('Reporte al Buró por incumplimiento MSI. -15 pts', 'error', this.jugador.scoreCrediticio);
+                        this.mensajesRetroalimentacion.push('-15 pts: Reporte negativo al Buró por incumplimiento de MSI.');
+
+                        if (tarjeta.tarjetaBloqueada) {
+                            this.vista.mostrarTarjetaBloqueada();
+                        }
+                    }
                 }
             }
 
@@ -216,6 +239,7 @@ export class MotorJuego {
             const estadoResumen = {
                 hp: this.jugador.calcularHP(),
                 score: this.jugador.scoreCrediticio,
+                calidadVida: this.jugador.calidadVida,
                 pagoMinimo: this.jugador.tarjeta.calcularPagoMinimo(),
                 ingresoMensual: this.jugador.ingresoMensual,
                 retroalimentacion: [...this.mensajesRetroalimentacion]
@@ -236,6 +260,27 @@ export class MotorJuego {
         const pagoMinimo = tarjeta.calcularPagoMinimo();
         const deudaTotal = tarjeta.saldoInsoluto + tarjeta.interesesGenerados * 1.16;
 
+        // Si la tarjeta está bloqueada, informar primero los requisitos según el nivel
+        if (tarjeta.tarjetaBloqueada) {
+            const montoRequerido = tarjeta.montoDesbloqueo();
+            this.vista.mostrarTarjetaBloqueada(tarjeta.nivelMora, montoRequerido);
+
+            // Para nivel grave: ofrecer la quita antes de mostrar el menú normal
+            if (tarjeta.nivelMora === 'grave') {
+                const montoQuitado = deudaTotal * 0.35;
+                const aceptoQuita = await this.vista.mostrarQuitaOferta(deudaTotal, montoQuitado);
+                if (aceptoQuita) {
+                    const quitado = tarjeta.aceptarQuita(0.35);
+                    this.vista.mostrarQuitaAceptada(quitado);
+                    this.jugador.modificarScore(-30);
+                    this.vista.mostrarCambioScore('Quita aceptada: mancha en el Buró. -30 pts', 'error', this.jugador.scoreCrediticio);
+                    this.mensajesRetroalimentacion.push('-30 pts: Aceptaste una quita bancaria. Buró manchado 6 años.');
+                    this.actualizarUIHeaders();
+                    return;
+                }
+            }
+        }
+
         const estadoTarjeta = {
             limiteCredito: tarjeta.limiteCredito,
             creditoDisponible: tarjeta.creditoDisponible,
@@ -247,14 +292,18 @@ export class MotorJuego {
 
         const eleccion = await this.vista.mostrarMenuAbonoTDC(estadoTarjeta);
 
+        let pagoEnEstaSesion = 0;
+
         if (eleccion.tipo === 'MINIMO') {
             this.jugador.pagarDeudaTDC(pagoMinimo);
+            pagoEnEstaSesion = pagoMinimo;
             this.vista.mostrarResolucionPagoMinimo();
             this.jugador.modificarScore(0);
             this.mensajesRetroalimentacion.push('Pagaste solo el mínimo de crédito (0 pts, pero genera intereses).');
             this.evaluarAumentoLinea();
         } else if (eleccion.tipo === 'TOTAL') {
             this.jugador.pagarDeudaTDC(deudaTotal);
+            pagoEnEstaSesion = deudaTotal;
             const puntos = this.semanaActual === 1 ? 10 : 5; 
             this.vista.mostrarResolucionPagoTotal();
             this.jugador.modificarScore(puntos);
@@ -263,13 +312,34 @@ export class MotorJuego {
             this.evaluarAumentoLinea();
         } else if (eleccion.tipo === 'PARCIAL') {
             this.jugador.pagarDeudaTDC(eleccion.monto);
+            pagoEnEstaSesion = eleccion.monto;
             this.vista.mostrarResolucionPagoParcial(eleccion.monto);
             this.mensajesRetroalimentacion.push(`Abono parcial de $${eleccion.monto.toFixed(2)} a TDC.`);
-            // No sumamos score inmediatamente, hasta que termine el mes a ver si cubrió el mínimo
             this.evaluarAumentoLinea();
         } else if (eleccion.tipo === 'CANCELAR') {
-            // Canceló el depósito voluntario
             return;
+        }
+
+        // Intentar desbloquear según nivel de mora
+        if (tarjeta.tarjetaBloqueada && pagoEnEstaSesion > 0) {
+            if (tarjeta.nivelMora === 'grave') {
+                // Solo se desbloquea si pagó el total completo
+                if (tarjeta.saldoInsoluto <= 0 && tarjeta.interesesGenerados <= 0) {
+                    tarjeta.forzarDesbloqueo();
+                    this.vista.consola.print('✅ ¡Deuda liquidada! Tu tarjeta ha sido reactivada.', 'info');
+                }
+            } else {
+                const desbloqueado = tarjeta.intentarDesbloqueo(pagoEnEstaSesion);
+                if (desbloqueado) {
+                    this.vista.consola.print('✅ ¡Pago suficiente! Tu tarjeta ha sido desbloqueada.', 'info');
+                    if (tarjeta.nivelMora === 'moderado') {
+                        this.vista.consola.print('⚠️ Nota: El banco puede mantener tu límite reducido temporalmente.', 'warning');
+                    }
+                } else {
+                    const faltante = tarjeta.montoDesbloqueo() - pagoEnEstaSesion;
+                    this.vista.consola.print(`💳 Tu tarjeta sigue bloqueada. Te falta pagar ~$${faltante.toFixed(2)} más para desbloquearla.`, 'warning');
+                }
+            }
         }
         this.actualizarUIHeaders();
     }
@@ -287,7 +357,7 @@ export class MotorJuego {
     }
 
     async procesarBatalla(batalla) {
-        this.vista.consola.print(`\n🚀 LLEGANDO A: ${batalla.localizacion.toUpperCase()}`, 'system');
+        this.vista.consola.print(`\n🚀 LLEGANDO A: <span style="color: orange">${batalla.localizacion.toUpperCase()}</span>`, 'system');
         
         while (batalla.gastos.length > 0) {
             const estadoVirtual = {
@@ -306,6 +376,17 @@ export class MotorJuego {
                 this.jugador.comprarConTDC(monto);
                 this.vista.mostrarResolucionGastoCredito();
                 
+                // Calidad de Vida por los gustos comprados en combo
+                [...batalla.gastos].forEach(g => {
+                    if (g instanceof GastoGusto) {
+                        const montoG = g.montoModificado !== undefined ? g.montoModificado : g.monto;
+                        const pts = Math.max(1, Math.floor(montoG / 50));
+                        this.jugador.modificarCalidadVida(+pts);
+                        this.vista.mostrarCambioCalidadVida(+pts, this.jugador.calidadVida);
+                        this.mensajesRetroalimentacion.push(`+${pts} CV: Disfrutaste "${g.nombre}".`);
+                    }
+                });
+
                 // Limpiar gastos comprados
                 [...batalla.gastos].forEach(g => batalla.eliminarDePool(g));
                 break; 
@@ -314,15 +395,27 @@ export class MotorJuego {
             if (opt === 'e') { // TODO Efectivo
                 const base = batalla.totalSinPagar;
                 let finalMonto = 0;
-                [...batalla.gastos].forEach(g => {
+                const gastosCombo = [...batalla.gastos];
+                gastosCombo.forEach(g => {
                     let descFrac = g.descuentoEfectivo || 0;
                     let descFijo = g.descuentoFijoEfectivo || 0;
                     finalMonto += Math.max(0, g.montoModificado * (1 - descFrac) - descFijo);
                 });
                 this.jugador.pagarConDebito(finalMonto);
                 this.vista.mostrarResolucionGastoDebito();
+
+                // Calidad de Vida por los gustos comprados en combo
+                gastosCombo.forEach(g => {
+                    if (g instanceof GastoGusto) {
+                        const montoG = g.montoModificado !== undefined ? g.montoModificado : g.monto;
+                        const pts = Math.max(1, Math.floor(montoG / 50));
+                        this.jugador.modificarCalidadVida(+pts);
+                        this.vista.mostrarCambioCalidadVida(+pts, this.jugador.calidadVida);
+                        this.mensajesRetroalimentacion.push(`+${pts} CV: Disfrutaste "${g.nombre}".`);
+                    }
+                });
                 
-                [...batalla.gastos].forEach(g => batalla.eliminarDePool(g));
+                gastosCombo.forEach(g => batalla.eliminarDePool(g));
                 break; 
             }
 
@@ -335,12 +428,13 @@ export class MotorJuego {
     async procesarGastoIndividual(gasto, batallaContext = null) {
         const estadoVirtual = {
             efectivoDisponible: this.jugador.efectivoDisponible,
-            creditoDisponible: this.jugador.tarjeta.creditoDisponible
+            creditoDisponible: this.jugador.tarjeta.creditoDisponible,
+            tarjetaBloqueada: this.jugador.tarjeta.tarjetaBloqueada
         };
         const puedeIgnorar = (gasto instanceof GastoGusto);
         const tieneDeuda = (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0);
 
-        const decision = await this.vista.mostrarMenuGasto(gasto, estadoVirtual, puedeIgnorar, tieneDeuda);
+        const decision = await this.vista.mostrarMenuGasto(gasto, estadoVirtual, puedeIgnorar, tieneDeuda, batallaContext);
 
         if (decision === null) {
             this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
@@ -367,11 +461,30 @@ export class MotorJuego {
         } else if (decision === 't') {
             this.jugador.comprarConTDC(montoActivo);
             this.vista.mostrarResolucionGastoCredito();
+        } else if (decision === 'm') {
+            const meses = await this.vista.mostrarSelectorMSI(montoActivo);
+            this.jugador.comprarConMSI(montoActivo, meses);
+            const mensualidad = montoActivo / meses;
+            this.vista.mostrarResolucionGastoMSI(meses, mensualidad);
         } else if (decision === 'i') {
             gasto.ignorar();
             this.vista.mostrarResolucionGastoIgnorado();
         } else {
             resuelto = false;
+        }
+
+        // Calidad de Vida: solo aplica a gustos pagados o ignorados
+        if (resuelto && gasto instanceof GastoGusto) {
+            const puntosCDV = Math.max(1, Math.floor(montoActivo / 50));
+            if (decision === 'i') {
+                this.jugador.modificarCalidadVida(-puntosCDV);
+                this.vista.mostrarCambioCalidadVida(-puntosCDV, this.jugador.calidadVida);
+                this.mensajesRetroalimentacion.push(`-${puntosCDV} CV: Te saltaste "${gasto.nombre}".`);
+            } else {
+                this.jugador.modificarCalidadVida(+puntosCDV);
+                this.vista.mostrarCambioCalidadVida(+puntosCDV, this.jugador.calidadVida);
+                this.mensajesRetroalimentacion.push(`+${puntosCDV} CV: Disfrutaste "${gasto.nombre}".`);
+            }
         }
 
         if (resuelto && batallaContext) {

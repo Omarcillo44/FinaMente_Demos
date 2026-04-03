@@ -7,6 +7,7 @@ export class Jugador {
         this.efectivoDisponible = ingresoInicial;
         this.tarjeta = tarjeta;
         this.scoreCrediticio = 0;
+        this.calidadVida = 50; // Arranca a la mitad (escala 0-100)
     }
 
     calcularHP() {
@@ -31,6 +32,10 @@ export class Jugador {
         return this.tarjeta.cargoNormal(monto);
     }
 
+    comprarConMSI(monto, meses) {
+        return this.tarjeta.cargoMSI(monto, meses);
+    }
+
     pagarDeudaTDC(monto) {
         //Se reutiliza el método pagarConDebito
         if (this.pagarConDebito(monto)) { //¿Le alcanza para pagar la tarjeta?
@@ -45,5 +50,11 @@ export class Jugador {
         this.scoreCrediticio += puntos;
         if (this.scoreCrediticio > 100) this.scoreCrediticio = 100;
         if (this.scoreCrediticio < 0) this.scoreCrediticio = 0;
+    }
+
+    modificarCalidadVida(puntos) {
+        this.calidadVida += puntos;
+        if (this.calidadVida > 100) this.calidadVida = 100;
+        if (this.calidadVida < 0) this.calidadVida = 0;
     }
 }

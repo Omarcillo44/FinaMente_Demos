@@ -52,17 +52,24 @@ export class ControladorVista {
         this.consola.print(`>>> Score actualizado a: ${nuevoScore} pts <<<`, 'user-input');
     }
 
+    mostrarCambioCalidadVida(delta, nuevaCV) {
+        const signo = delta >= 0 ? '+' : '';
+        const tipo = delta >= 0 ? 'info' : 'warning';
+        this.consola.print(`😊 Calidad de Vida: ${signo}${delta} pts → ${nuevaCV} / 100`, tipo);
+    }
+
 
 
     mostrarNotificacionVentanaPagoInmediata() {
         this.consola.print("¡Es Stage 6, recuento final!");
     }
 
-    mostrarVictoria(hp, score) {
+    mostrarVictoria(hp, score, calidadVida) {
         this.consola.print('\n====================================', 'info');
         this.consola.print('! FELICIDADES ! HAS COMPLETADO LOS 6 MESES.', 'prompt');
         this.consola.print(`HP Final: $${hp.toFixed(2)}`);
         this.consola.print(`Score Crediticio Final: ${score.toFixed(0)}`);
+        this.consola.print(`Calidad de Vida Final: ${calidadVida} / 100`);
         this.consola.print('====================================\n', 'info');
     }
 
@@ -100,7 +107,7 @@ export class ControladorVista {
             for (let i = 0; i < locArray.length; i++) {
                 const num = (i + 1).toString();
                 const count = poolGastos.filter(g => Object.keys(g.opcionesCompra).includes(locArray[i])).length;
-                opciones.push(`[${num}] Viajar a: ${locArray[i]} (${count} mandados por hacer)`);
+                opciones.push(`[${num}] Viajar a: <span style="color: orange">${locArray[i]}</span> (${count} mandados por hacer)`);
                 indexString.push(num);
             }
         }
@@ -120,7 +127,7 @@ export class ControladorVista {
 
     async mostrarMenuBatalla(batalla, estado) {
         this.consola.print(`\n========================================`, 'system');
-        this.consola.print(`📍 BATALLA: ${batalla.localizacion.toUpperCase()}`, 'system');
+        this.consola.print(`📍 BATALLA: <span style="color: orange">${batalla.localizacion.toUpperCase()}</span>`, 'system');
         this.consola.print(`========================================`, 'system');
 
         this.consola.print(`\n[Sinergias Activas]`);
@@ -130,7 +137,8 @@ export class ControladorVista {
             this.consola.print(`> Ninguna sinergia ambiental detectada en esta localización.`, 'system');
         }
 
-        this.consola.print(`\n[Tus Recursos] Efectivo: $${estado.efectivoDisponible.toFixed(2)} | Crédito: $${estado.creditoDisponible.toFixed(2)}`);
+        // No hace falta mostrarlo si tenemos arriba el menú.
+        //this.consola.print(`\n[Tus Recursos] Efectivo: $${estado.efectivoDisponible.toFixed(2)} | Crédito: $${estado.creditoDisponible.toFixed(2)}`);
 
         let opciones = [];
         let indexString = [];
@@ -139,25 +147,50 @@ export class ControladorVista {
         for (let i = 0; i < batalla.gastos.length; i++) {
             const gasto = batalla.gastos[i];
             const num = (i + 1).toString();
-            opciones.push(`[${num}] Inspeccionar y Pagar: ${gasto.nombre} ($${gasto.montoModificado.toFixed(2)})`);
+
+            let descFrac = gasto.descuentoEfectivo || 0;
+            let descFijo = gasto.descuentoFijoEfectivo || 0;
+            let efectivoFinal = Math.max(0, gasto.montoModificado * (1 - descFrac) - descFijo);
+
+            if (efectivoFinal < gasto.montoModificado) {
+                opciones.push(`[${num}] Inspeccionar y Pagar: <span style="color: orange">${gasto.nombre}</span> (TDC: $${gasto.montoModificado.toFixed(2)} | Efvo: $${efectivoFinal.toFixed(2)})`);
+            } else {
+                opciones.push(`[${num}] Inspeccionar y Pagar: <span style="color: orange">${gasto.nombre}</span> ($${gasto.montoModificado.toFixed(2)})`);
+            }
             indexString.push(num);
         }
 
         // Calcular el descuento por comprar en combo
         const base = batalla.totalSinPagar;
         let efFinal = 0;
+        let todosAceptanTDC = true;
+
         batalla.gastos.forEach(g => {
             let descFrac = g.descuentoEfectivo || 0;
             let descFijo = g.descuentoFijoEfectivo || 0;
             efFinal += Math.max(0, g.montoModificado * (1 - descFrac) - descFijo);
+            if (g.aceptaTDC === false) {
+                todosAceptanTDC = false;
+            }
         });
         const suffix = efFinal < base ? " - Sinergias Aplicadas" : "";
 
-        opciones.push(`\n[t] Comprar TODO lo de aquí con Tarjeta de Crédito ($${base.toFixed(2)})`);
-        indexString.push('t');
+        opciones.push(`\n[Opciones extras]`);
+        if (todosAceptanTDC && estado.creditoDisponible >= base) {
+            opciones.push(`[t] Comprar TODO lo de aquí con Tarjeta de Crédito ($${base.toFixed(2)})`);
+            indexString.push('t');
+        } else if (!todosAceptanTDC) {
+            opciones.push(`[t] NO DISPONIBLE: Tienes artículos que no aceptan Tarjeta de Crédito.`);
+        } else if (estado.creditoDisponible < base) {
+            opciones.push(`[t] NO DISPONIBLE: No tienes suficiente límite de crédito para comprar todo de golpe.`);
+        }
 
-        opciones.push(`[e] Comprar TODO con Efectivo/Débito ($${efFinal.toFixed(2)}${suffix})`);
-        indexString.push('e');
+        if (estado.efectivoDisponible >= efFinal) {
+            opciones.push(`[e] Comprar TODO con Efectivo/Débito ($${efFinal.toFixed(2)}${suffix})`);
+            indexString.push('e');
+        } else {
+            opciones.push(`[e] NO DISPONIBLE: No tienes suficiente efectivo para comprar todo de golpe.`);
+        }
 
         opciones.push(`[x] Salir de la Batalla y regresar al Mapa`);
         indexString.push('x');
@@ -174,6 +207,7 @@ export class ControladorVista {
             this.consola.print(`\n--- RESUMEN ACTUAL ---`, 'system');
             this.consola.print(`🤍 HP Real: $${estadoExtra.hp.toFixed(2)}`, 'info');
             this.consola.print(`⭐ Score Crediticio: ${estadoExtra.score} pts`, 'info');
+            this.consola.print(`😊 Calidad de Vida: ${estadoExtra.calidadVida} / 100`, 'info');
             this.consola.print(`💳 Pago Mínimo TDC: $${estadoExtra.pagoMinimo.toFixed(2)}`, 'info');
             this.consola.print(`💸 Ingreso Mensual: $${estadoExtra.ingresoMensual.toFixed(2)}`, 'info');
 
@@ -183,7 +217,7 @@ export class ControladorVista {
                     this.consola.print(` * ${msg}`, 'prompt');
                 });
             } else {
-                this.consola.print(`↳ Actividad Reciente: Sin novedades en tu score o límite.`, 'system');
+                this.consola.print(`↳ Actividad Reciente: \n   Sin novedades en tu score o límite.`, 'system');
             }
             this.consola.print(`----------------------`, 'system');
         }
@@ -267,6 +301,53 @@ export class ControladorVista {
         this.consola.print('Disminución de 20 pts de Score.', 'error');
     }
 
+    mostrarConsequenciaMSI(comision, esBolaDNieve) {
+        this.consola.print('\n⚠️ ¡INCUMPLIMIENTO MSI!', 'error');
+        this.consola.print('No cubriste la mensualidad de tus Meses Sin Intereses.', 'error');
+        this.consola.print('📌 Consecuencia 1: Perdes el beneficio de 0% intereses — esa deuda ahora genera intereses ordinarios.', 'error');
+        this.consola.print(`📌 Consecuencia 2: Comisión por Falta de Pago (Gastos de Cobranza): $${comision.toFixed(2)} cargados a tu cuenta.`, 'error');
+        if (esBolaDNieve) {
+            this.consola.print('🔴 Consecuencia 3 (BOLA DE NIEVE): ¡2do incumplimiento! El banco cancela TODOS tus planes MSI.', 'error');
+            this.consola.print('   Todo el saldo restante de tus MSI se convirtió en deuda revolvente con intereses.', 'error');
+        }
+    }
+
+    mostrarTarjetaBloqueada(nivelMora, montoRequerido) {
+        this.consola.print('\n🔒 ¡TU TARJETA ESTÁ BLOQUEADA!', 'error');
+        if (nivelMora === 'leve') {
+            this.consola.print('Nivel de mora: LEVE (1 mes). El banco bloqueó tu tarjeta por no cubrir el mínimo.', 'warning');
+            this.consola.print(`Para desbloquearla: paga al menos $${montoRequerido.toFixed(2)} (pago mínimo del mes).`, 'warning');
+            this.consola.print('Una vez cubierto, el sistema la reactiva en 24-48h (inmediatamente en el juego).', 'info');
+        } else if (nivelMora === 'moderado') {
+            this.consola.print('Nivel de mora: MODERADO (2-3 meses). Ya eres cliente de riesgo para el banco.', 'error');
+            this.consola.print(`Para desbloquearla: debes cubrir TODOS los mínimos vencidos acumulados: $${montoRequerido.toFixed(2)}.`, 'error');
+            this.consola.print('Incluso tras pagar, el banco puede reducir tu límite de crédito.', 'warning');
+        } else {
+            this.consola.print('Nivel de mora: GRAVE (más de 3 meses). Tu deuda fue enviada a cobranza.', 'error');
+            this.consola.print(`Para reactivarla: debes pagar el TOTAL de la deuda ($${montoRequerido.toFixed(2)})`, 'error');
+            this.consola.print('...o puedes aceptar una "QUITA" (el banco condona 35%, pero cancela tu cuenta definitivamente y mancha tu Buró 6 años).', 'warning');
+        }
+        this.consola.print('Usa Banca Móvil [p] para realizar tu abono.', 'info');
+    }
+
+    async mostrarQuitaOferta(deudaTotal, montoQuitado) {
+        this.consola.print('\n--- OFERTA DE QUITA ---', 'warning');
+        this.consola.print(`El banco condona $${montoQuitado.toFixed(2)} (35% de tu deuda).`, 'warning');
+        this.consola.print(`Solo pagarías: $${(deudaTotal - montoQuitado).toFixed(2)}`, 'warning');
+        this.consola.print('⚠️ Consecuencia permanente: tu tarjeta se CANCELA y tendrás una mancha en el Buró por 6 años. -30 pts de Score.', 'error');
+        const resp = await this.consola.prompt('¿Aceptas la quita? [s = Sí, n = No, pago el total]:',  ['s', 'n']);
+        return resp === 's';
+    }
+
+    mostrarQuitaAceptada(montoQuitado) {
+        this.consola.print('\n========================================', 'error');
+        this.consola.print('QUITA ACEPTADA. El banco condonó parte de tu deuda.', 'warning');
+        this.consola.print(`Se te quitaron $${montoQuitado.toFixed(2)} de la deuda.`, 'info');
+        this.consola.print('Tu tarjeta ha sido CANCELADA definitivamente.', 'error');
+        this.consola.print('Esta decisión quedará registrada en tu Buró de Crédito por 6 años.', 'error');
+        this.consola.print('========================================\n', 'error');
+    }
+
     mostrarAumentoLinea(limiteViejo, limiteNuevo) {
         this.consola.print(`>>> ¡BUEN HISTORIAL PREMIADO! <<<`, 'prompt');
         this.consola.print(`Tu límite de crédito ha sido aumentado de $${limiteViejo.toFixed(2)} a $${limiteNuevo.toFixed(2)}`, 'prompt');
@@ -274,7 +355,7 @@ export class ControladorVista {
 
     async mostrarMenuGasto(gasto, estado, puedeIgnorar, tieneDeuda, batallaContext = null) {
         const montoActivo = gasto.montoModificado !== undefined ? gasto.montoModificado : gasto.monto;
-        this.consola.print(`\n[¡GASTO INDIVIDUAL!] Estás inspeccionando: ${gasto.nombre}`);
+        this.consola.print(`\n[¡GASTO INDIVIDUAL!] Estás inspeccionando: <span style="color: orange">${gasto.nombre}</span>`);
 
         let descFrac = (batallaContext && gasto.descuentoEfectivo) ? gasto.descuentoEfectivo : 0;
         let descFijo = (batallaContext && gasto.descuentoFijoEfectivo) ? gasto.descuentoFijoEfectivo : 0;
@@ -294,11 +375,20 @@ export class ControladorVista {
             }
         }
 
-        if (estado.creditoDisponible >= montoActivo && gasto.aceptaTDC !== false) {
-            opciones.push('t');
-            descP.push('t: Tarjeta Credito');
-        } else if (gasto.aceptaTDC === false) {
-            this.consola.print(`(❗) Este gasto tiene restricciones y NO se puede pagar con Tarjeta`, 'warning');
+        if (estado.tarjetaBloqueada) {
+            this.consola.print(`🔒 Tu tarjeta está bloqueada. Solo puedes pagar con efectivo/débito.`, 'error');
+        } else {
+            if (estado.creditoDisponible >= montoActivo && gasto.aceptaTDC !== false) {
+                opciones.push('t');
+                descP.push('t: Tarjeta Credito');
+            } else if (gasto.aceptaTDC === false) {
+                this.consola.print(`(❗) Este gasto tiene restricciones y NO se puede pagar con Tarjeta`, 'warning');
+            }
+
+            if (gasto.aceptaMSI && estado.creditoDisponible >= montoActivo) {
+                opciones.push('m');
+                descP.push('m: Meses Sin Intereses (MSI)');
+            }
         }
 
         if (puedeIgnorar && !gasto.bloquearIgnorar) {
@@ -322,6 +412,19 @@ export class ControladorVista {
 
     mostrarResolucionGastoCredito() {
         this.consola.print('Pagado con Tarjeta de Crédito.');
+    }
+
+    mostrarResolucionGastoMSI(meses, mensualidad) {
+        this.consola.print(`Compra en ${meses} MSI. Mensualidad: $${mensualidad.toFixed(2)}/mes. El crédito está comprometido.`, 'info');
+    }
+
+    async mostrarSelectorMSI(montoActivo) {
+        const opcionesMeses = ['3', '6', '12'];
+        const msgs = opcionesMeses.map(m => `[${m}] ${m} meses ($${(montoActivo / parseInt(m)).toFixed(2)}/mes)`);
+        this.consola.print(`\n¿A cuántos meses?`);
+        this.consola.print(msgs.join('\n'));
+        const elegido = await this.consola.prompt('Elige: ', opcionesMeses);
+        return parseInt(elegido);
     }
 
     mostrarImpulsoSupermercado() {
