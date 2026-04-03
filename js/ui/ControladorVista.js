@@ -85,8 +85,26 @@ export class ControladorVista {
         this.consola.print(`========================================\n`, 'info');
     }
 
-    mostrarSemanaTranquila() {
-        this.consola.print("Una semana tranquila. No hubo gastos.", "system");
+    async mostrarSelectorGastos(gastosDisponibles) {
+        this.consola.print(`\n========================================`, 'system');
+        this.consola.print(`📝 TAREAS PENDIENTES DE LA SEMANA`, 'system');
+        this.consola.print(`========================================`, 'system');
+        
+        let opciones = [];
+        let indexString = [];
+        
+        for (let i = 0; i < gastosDisponibles.length; i++) {
+            const gasto = gastosDisponibles[i];
+            const num = (i + 1).toString();
+            opciones.push(`[${num}] ${gasto.nombre} (${gasto.categoria})`);
+            indexString.push(num);
+        }
+        
+        this.consola.print(opciones.join('  |  '));
+        const opcionElegida = await this.consola.prompt(`Elige a qué enfrentar primero (1-${gastosDisponibles.length}):`, indexString);
+        
+        // Convertimos un string de base-1 a un índice base-0 lógico
+        return parseInt(opcionElegida) - 1;
     }
 
     async confirmarAvance() {

@@ -23,36 +23,43 @@ export class MotorJuego {
         this.config = ConfigPerfil.get(perfilEnum);
 
 
-        /*
-        * Se define el ingreso inicial dependiendo del perfil
-        * Si es esporádico, se toma su valor del config
-        * Si es trabajador, se toma un valor aleatorio entre el min y max del config
-        */
+        //Se define el ingreso inicial dependiendo del perfil seleccionado
         let ingresoInicial;
-        if (perfilEnum === PerfilEnum.ESPORADICO) {
+        if (perfilEnum === PerfilEnum.ESPORADICO) { //Si es esporádico, se toma su valor del config
             ingresoInicial = this.config.ingresoStage1;
-        } else if (perfilEnum === PerfilEnum.TRABAJADOR) {
+        } else if (perfilEnum === PerfilEnum.TRABAJADOR) { //Si es trabajador, se toma un valor aleatorio entre el min y max del config
             ingresoInicial = GeneradorAleatorio.randomBetween(this.config.ingresoMin, this.config.ingresoMax);
         } else {
             // Los demás perfiles tienen ingresos fijos iniciales
             ingresoInicial = this.config.ingresoFijo;
         }
 
+        //Se genera el límite inicial aleatoriamente dependiendo del perfil seleccionado
         const limiteInicial = GeneradorAleatorio.generarLimiteInicial(this.config);
+        //Se crea la tarjeta de crédito con el límite inicial y la configuración del perfil
         const tarjeta = new TarjetaCredito(limiteInicial, this.config);
 
         this.jugador = new Jugador(perfilEnum, ingresoInicial, tarjeta);
 
         this.actualizarUIHeaders();
-        this.vista.mostrarInicializacion(perfilEnum, ingresoInicial, limiteInicial, this.config.tasaInteresAnual);
+
+        /*Esta línea le avisa a la interfaz que ya quedó listo el personaje
+        El comportamiento del método podría cambiar para posterior integración con React
+        */
+        this.vista.mostrarInicializacion(perfilEnum, ingresoInicial, limiteInicial, this.config.tasaInteresAnual); //React
         await this.vista.sleep(1000);
     }
 
-    actualizarUIHeaders() {
+    /*
+    Método para actualizar todas las stats del jugador y tarjeta
+    luego de enfrentar algún gasto
+    Se pueden quitar y agregar según cambie la interfaz
+    */
+    actualizarUIHeaders() { //React
         if (!this.jugador) return;
         const hp = this.jugador.calcularHP();
         const pagoNoIntereses = this.jugador.tarjeta.saldoInsoluto + (this.jugador.tarjeta.interesesGenerados * 1.16);
-        
+
         this.vista.actualizarHeaders({
             hp: hp,
             pagoMinimo: this.jugador.tarjeta.calcularPagoMinimo(),
@@ -68,7 +75,7 @@ export class MotorJuego {
     async evaluarGameOver() {
         if (this.jugador.calcularHP() <= 0) {
             this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
-            this.vista.mostrarGameOverPorHP();
+            this.vista.mostrarGameOverPorHP(); //react
             return true;
         }
         return false;
@@ -117,51 +124,48 @@ export class MotorJuego {
     }
 
     async iniciarStage() {
-        // Ingreso por inicio de mes (Para esporádico o normal se reinicia efectivo)
-        // En stage 1 el jugador se inicializó ya
+        // Sólo afecta a los stages después del primero
         if (this.stageActual > 1) {
             let nuevoIngreso;
-            if (this.config.perfil === PerfilEnum.ESPORADICO) {
+            if (this.config.perfil === PerfilEnum.ESPORADICO) { //Esporadico
                 nuevoIngreso = GeneradorAleatorio.generarIngresoEsporadico(this.config);
-                this.vista.mostrarIngresoNuevoMes(true, nuevoIngreso);
-            } else if (this.config.perfil === PerfilEnum.TRABAJADOR) {
-                nuevoIngreso = GeneradorAleatorio.randomBetween(this.config.ingresoMin, this.config.ingresoMax);
-                this.vista.mostrarIngresoNuevoMes(false, nuevoIngreso);
-            } else {
-                nuevoIngreso = this.config.ingresoFijo;
-                this.vista.mostrarIngresoNuevoMes(false, nuevoIngreso);
+                this.vista.mostrarIngresoNuevoMes(true, nuevoIngreso); //React
+            } else { //Trabajador, Dependiente e Independiente mantienen el del stage 1
+                nuevoIngreso = this.jugador.ingresoMensual;
+                this.vista.mostrarIngresoNuevoMes(false, nuevoIngreso); //React
             }
             this.jugador.actualizarIngreso(nuevoIngreso);
-            this.actualizarUIHeaders();
+            this.actualizarUIHeaders(); //Actualiza el ingreso del jugador en la UI - React
         }
 
         for (this.semanaActual = 1; this.semanaActual <= 4; this.semanaActual++) {
             this.actualizarUIHeaders();
-            this.vista.mostrarInicioSemana(this.stageActual, this.semanaActual);
+            this.vista.mostrarInicioSemana(this.stageActual, this.semanaActual); //React
 
+            // Genera los gastos de la semana actual
             this.gastosSemana = GeneradorAleatorio.generarOleadaSemanal(this.config, this.semanaActual);
 
-            if (this.gastosSemana.length === 0) {
-                this.vista.mostrarSemanaTranquila();
-            }
+            // Mientras queden gastos por enfrentar
+            while (this.gastosSemana.length > 0) {
+                //Espera a que el jugador elija un gasto para enfrentarlo
+                const indexElegido = await this.vista.mostrarSelectorGastos(this.gastosSemana);
+                //Se obtiene el gasto elegido
+                const gasto = this.gastosSemana[indexElegido];
 
-            for (let i = 0; i < this.gastosSemana.length; i++) {
-                const gasto = this.gastosSemana[i];
+                //Se procesa el gasto
                 await this.procesarGasto(gasto);
-                this.actualizarUIHeaders();
-                if (await this.evaluarGameOver()) return; // Corta ejecución aquí
+                this.actualizarUIHeaders(); //Se actualizan todos los montos
+                if (await this.evaluarGameOver()) return; // Checa si puede continuar después de procesar el gasto
 
-                // Cierre de ventana de pago al FINAL de la semana 2 si hay pago pendiente
-                if (this.semanaActual === 2 && i === this.gastosSemana.length - 1 && this.ventanaPago === VentanaPagoEnum.ABIERTA) {
-                    await this.manejarVentanaDePago();
-                }
+                this.gastosSemana.splice(indexElegido, 1); //Se elimina el gasto de la lista
             }
-            // Si la semana 2 terminó sin gastos, igual cerramos la ventana
-            if (this.semanaActual === 2 && this.gastosSemana.length === 0 && this.ventanaPago === VentanaPagoEnum.ABIERTA) {
+
+            // Cierre de ventana de pago al FINAL de la semana 2 si hay pago pendiente
+            if (this.semanaActual === 2 && this.ventanaPago === VentanaPagoEnum.ABIERTA) {
                 await this.manejarVentanaDePago();
             }
 
-            // Preguntar si quiere salir en cualquier momento para prueba
+            // Preguntar si terminar el juego en cualquier momento
             const salir = await this.vista.confirmarAvance();
             if (salir === 'salir') {
                 this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
@@ -214,10 +218,11 @@ export class MotorJuego {
     evaluarAumentoLinea() {
         const nuevoLimite = GeneradorAleatorio.evaluarAumentoLinea(this.jugador.scoreCrediticio, this.jugador.tarjeta.limiteCredito);
         if (nuevoLimite) {
-            const diff = nuevoLimite - this.jugador.tarjeta.limiteCredito;
-            this.vista.mostrarAumentoLinea(this.jugador.tarjeta.limiteCredito, nuevoLimite);
+            const diferenciaLimites = nuevoLimite - this.jugador.tarjeta.limiteCredito;
+            //Le muestra al usuario cuanto subio su linea
+            this.vista.mostrarAumentoLinea(this.jugador.tarjeta.limiteCredito, nuevoLimite); //React
             this.jugador.tarjeta.limiteCredito = nuevoLimite;
-            this.jugador.tarjeta.creditoDisponible += diff;
+            this.jugador.tarjeta.creditoDisponible += diferenciaLimites;
         }
     }
 
@@ -226,11 +231,12 @@ export class MotorJuego {
             efectivoDisponible: this.jugador.efectivoDisponible,
             creditoDisponible: this.jugador.tarjeta.creditoDisponible
         };
-        const puedeIgnorar = (gasto instanceof GastoGusto);
+        const puedeIgnorar = (gasto instanceof GastoGusto); //Checa el valor booleano de si es un gasto de gusto
         const ventanaPagoAbierta = (this.ventanaPago === VentanaPagoEnum.ABIERTA && (this.jugador.tarjeta.saldoInsoluto > 0 || this.jugador.tarjeta.interesesGenerados > 0));
 
-        const decision = await this.vista.mostrarMenuGasto(gasto, estadoVirtual, puedeIgnorar, ventanaPagoAbierta);
+        const decision = await this.vista.mostrarMenuGasto(gasto, estadoVirtual, puedeIgnorar, ventanaPagoAbierta); //React
 
+        //Si no hay dinero para pagar nada
         if (decision === null) {
             this.estadoJuego = EstadoJuegoEnum.GAME_OVER;
             this.vista.mostrarGameOverInsolvencia();
@@ -238,9 +244,11 @@ export class MotorJuego {
         }
 
         if (decision === 'p') {
+            // 1. Abre el menú para pagar la deuda de la tarjeta
             await this.manejarVentanaDePago();
-            // Volver a preguntar por el gasto actual recursivamente, 
-            // ya que usó su turno para pagar la tarjeta
+
+            // 2. Vuelve a ejecutar TODO este mismo método para el mismo gasto
+            // Lo llama recursivamente
             await this.procesarGasto(gasto);
         } else if (decision === 'd') {
             this.jugador.pagarConDebito(gasto.monto);
