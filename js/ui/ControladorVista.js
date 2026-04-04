@@ -14,6 +14,7 @@ export class ControladorVista {
             estado.saldoInsoluto,
             estado.limiteCredito,
             estado.efectivoDisponible,
+            estado.calidadVida,
             estado.stageActual,
             estado.semanaActual
         );
@@ -25,7 +26,9 @@ export class ControladorVista {
         this.consola.print(`Límite de Crédito: $${limiteInicial.toFixed(2)} (Tasa Anual: ${(tasaInteresAnual * 100).toFixed(1)}%)`);
     }
 
-    mostrarGameOverPorHP() {
+    mostrarGameOverPorHP(stage, stats) {
+        this.consola.clear();
+        this.mostrarFinStage(stage, stats, false);
         this.consola.print('\n====================================', 'error');
         this.consola.print('!!!!!!! GAME OVER !!!!!!!', 'error');
         this.consola.print('Tu HP (Ingreso - Pago Mínimo) llegó a 0 o menos.', 'error');
@@ -33,7 +36,9 @@ export class ControladorVista {
         this.consola.print('====================================\n', 'error');
     }
 
-    mostrarGameOverInsolvencia() {
+    mostrarGameOverInsolvencia(stage, stats) {
+        this.consola.clear();
+        this.mostrarFinStage(stage, stats, false);
         this.consola.print(`¡No tienes efectivo ni crédito suficiente para cubrir este gasto obligatorio!`, 'error');
         this.consola.print('\n====================================', 'error');
         this.consola.print('!!!!!!! GAME OVER !!!!!!!', 'error');
@@ -42,9 +47,24 @@ export class ControladorVista {
         this.consola.print('====================================\n', 'error');
     }
 
-    mostrarFinStage(stage) {
-        this.consola.print(`\n--- FIN DEL STAGE ${stage} ---`, 'info');
-        this.consola.print(`Corte de Tarjeta: Se calculan intereses si aplica.`);
+    mostrarFinStage(stage, stats, esNiniOEsporadico) {
+        this.consola.print(`\n========================================`, 'info');
+        this.consola.print(`📊 RESUMEN MENSUAL - CIERRE MES ${stage}`, 'info');
+        this.consola.print(`========================================`, 'info');
+        this.consola.print(`🤍 HP Real: $${stats.hp.toFixed(2)}`);
+        this.consola.print(`⭐ Score Crediticio: ${stats.score.toFixed(0)} pts`);
+        this.consola.print(`😊 Calidad de Vida: ${Math.floor(stats.cv)} / 100`);
+        this.consola.print(`💳 Pago Mínimo TDC: $${stats.pagoMinimo.toFixed(2)}`);
+        this.consola.print(`💸 Pago para no generar intereses: $${stats.pagoNoIntereses.toFixed(2)}`);
+        this.consola.print(`----------------------------------------`);
+        
+        if (esNiniOEsporadico) {
+            this.consola.print(`💰 ¡DINERO EXTRA RECIBIDO! 🤑`, 'prompt');
+            this.consola.print(`💸 Nuevo Ingreso: $${stats.nuevoIngreso.toFixed(2)}`, 'prompt');
+        } else {
+            this.consola.print(`💸 Nuevo Ingreso: $${stats.nuevoIngreso.toFixed(2)}`, 'info');
+        }
+        this.consola.print(`========================================\n`, 'info');
     }
 
     mostrarCambioScore(mensaje, tipo, nuevoScore) {
@@ -66,6 +86,13 @@ export class ControladorVista {
         this.consola.print('====================================\n', 'info');
     }
 
+    mostrarResumenSalidaVoluntaria(stage, stats) {
+        this.consola.clear();
+        this.consola.print(`\n>>> PARTIDA FINALIZADA POR EL USUARIO <<<`, 'warning');
+        this.mostrarFinStage(stage, stats, false);
+        this.consola.print(`Has decidido terminar la simulación en el Mes ${stage}.`, 'info');
+    }
+
     mostrarIngresoNuevoMes(esEsporadico, monto) {
         if (esEsporadico) {
             this.consola.print(`\nMes nuevo. Ingreso esporádico recibido: $${monto.toFixed(2)}`, 'info');
@@ -80,28 +107,56 @@ export class ControladorVista {
         this.consola.print(`========================================\n`, 'info');
     }
 
-    async mostrarSelectorGastos(gastosDisponibles) {
+    async mostrarSelectorLocalizacion(localizaciones) {
         this.consola.print(`\n========================================`, 'system');
-        this.consola.print(`📝 TAREAS PENDIENTES DE LA SEMANA`, 'system');
+        this.consola.print(`🗺️ MAPA: ELIGE UNA LOCALIZACIÓN A VISITAR`, 'system');
         this.consola.print(`========================================`, 'system');
         
         let opciones = [];
         let indexString = [];
         
-        for (let i = 0; i < gastosDisponibles.length; i++) {
-            const gasto = gastosDisponibles[i];
+        for (let i = 0; i < localizaciones.length; i++) {
+            const loc = localizaciones[i];
             const num = (i + 1).toString();
-            opciones.push(`[${num}] ${gasto.nombre} (${gasto.categoria})`);
+            opciones.push(`[${num}] ${loc}`);
             indexString.push(num);
         }
-        opciones.push(`[p] Usar Banca Móvil (Abonar a TDC)`);
+        opciones.push(`[p] Usar Banca Móvil (Abonar/Retirar)`);
         indexString.push('p');
+        opciones.push(`[x] Finalizar Partida`);
+        indexString.push('x');
         
         this.consola.print(opciones.join('  |  '));
-        const opcionElegida = await this.consola.prompt(`Elige a qué enfrentar primero (1-${gastosDisponibles.length}):`, indexString);
+        const opcionElegida = await this.consola.prompt(`¿A dónde quieres ir? (1-${localizaciones.length}, 'p' o 'x'):`, indexString);
         
         if (opcionElegida === 'p') return 'p';
-        return parseInt(opcionElegida) - 1;
+        if (opcionElegida === 'x') return 'x';
+        return localizaciones[parseInt(opcionElegida) - 1];
+    }
+
+    async mostrarSelectorGastosLocalizacion(localizacion, gastos) {
+        this.consola.print(`\n----------------------------------------`, 'system');
+        this.consola.print(`📍 ESTÁS EN: ${localizacion}`, 'system');
+        this.consola.print(`----------------------------------------`, 'system');
+        
+        let opciones = [];
+        let indexString = [];
+        
+        for (let i = 0; i < gastos.length; i++) {
+            const gasto = gastos[i];
+            const num = (i + 1).toString();
+            opciones.push(`[${num}] ${gasto.nombre} ($${gasto.monto.toFixed(2)})`);
+            indexString.push(num);
+        }
+        opciones.push(`[p] Banca Móvil`);
+        indexString.push('p');
+        opciones.push(`[s] Salir de aquí (Regresar al mapa)`);
+        indexString.push('s');
+        opciones.push(`[x] Finalizar Partida`);
+        indexString.push('x');
+        
+        this.consola.print(opciones.join('  |  '));
+        return await this.consola.prompt(`¿A qué te enfrentas ahora? (1-${gastos.length}, 'p', 's' o 'x'):`, indexString);
     }
 
     async confirmarAvance() {
@@ -112,14 +167,16 @@ export class ControladorVista {
         this.consola.print("Juego cancelado por el usuario.");
     }
 
-    async mostrarMenuAbonoTDC(estado) {
-        this.consola.print(`\n>>> ABONO A TARJETA DE CRÉDITO <<<`, 'warning');
+    async mostrarMenuBancaMovil(estado) {
+        this.consola.print(`\n>>> BANCA MÓVIL: GESTIÓN DE CUENTA <<<`, 'warning');
         this.consola.print(`Estado Tarjeta:`);
         this.consola.print(`- Límite Total: $${estado.limiteCredito.toFixed(2)}`);
         this.consola.print(`- Crédito Disponible: $${estado.creditoDisponible.toFixed(2)}`);
         this.consola.print(`- Saldo Insoluto: $${estado.saldoInsoluto.toFixed(2)}`);
         this.consola.print(`- Pago Mínimo Requerido: $${estado.pagoMinimo.toFixed(2)}`);
+        this.consola.print(`- Pago para no generar intereses: $${estado.pagoNoIntereses.toFixed(2)}`);
         this.consola.print(`EFECTIVO DISPONIBLE: $${estado.efectivoDisponible.toFixed(2)}`, 'info');
+        this.consola.print(`DISPONIBLE PARA RETIRO: $${estado.maxRetiro.toFixed(2)} (Comisión: ${(estado.comisionPct*100).toFixed(0)}% + IVA)`, 'error');
 
         let msgs = [];
         let opciones = [];
@@ -128,19 +185,23 @@ export class ControladorVista {
             opciones.push('1');
             msgs.push(`[1] Pagar Mínimo ($${estado.pagoMinimo.toFixed(2)})`);
         }
-        if (estado.efectivoDisponible >= estado.deudaTotal && estado.deudaTotal > 0) {
+        if (estado.efectivoDisponible >= estado.pagoNoIntereses && estado.pagoNoIntereses > 0) {
             opciones.push('2');
-            msgs.push(`[2] Pagar Cuenta Total ($${estado.deudaTotal.toFixed(2)})`);
+            msgs.push(`[2] Pago para no generar intereses ($${estado.pagoNoIntereses.toFixed(2)})`);
         }
         if (estado.efectivoDisponible > 0) {
             opciones.push('3');
-            msgs.push(`[3] Otro Monto`);
+            msgs.push(`[3] Otro Monto para Abono`);
+        }
+        if (estado.maxRetiro > 0) {
+            opciones.push('5');
+            msgs.push(`[5] RETIRAR EFECTIVO DE TDC`);
         }
         opciones.push('4');
-        msgs.push(`[4] Cancelar`);
+        msgs.push(`[4] Salir`);
 
         this.consola.print(msgs.join('  |  '));
-        const opcion = await this.consola.prompt(`Elige una opción (${opciones.join(', ')}):`, opciones);
+        const opcion = await this.consola.prompt(`Elige una operación (${opciones.join(', ')}):`, opciones);
 
         if (opcion === '3') {
             let numParsed = -1;
@@ -148,11 +209,24 @@ export class ControladorVista {
                 const amountInput = await this.consola.prompt(`¿Cuánto deseas abonar? ($1 - $${estado.efectivoDisponible.toFixed(2)}):`);
                 numParsed = parseFloat(amountInput);
                 if (isNaN(numParsed) || numParsed <= 0 || numParsed > estado.efectivoDisponible) {
-                    this.consola.print(`Entrada inválida o monto superior a tu efectivo disponible. Intenta de nuevo.`, 'warning');
-                    numParsed = -1; // Force loop again
+                    this.consola.print(`Monto no válido.`, 'warning');
+                    numParsed = -1;
                 }
             }
             return { tipo: 'PARCIAL', monto: numParsed };
+        }
+
+        if (opcion === '5') {
+            let numRetiro = -1;
+            while (numRetiro <= 0 || numRetiro > estado.maxRetiro) {
+                const amountRetiro = await this.consola.prompt(`¿Cuánto vas a retirar? (Max $${estado.maxRetiro.toFixed(2)}):`);
+                numRetiro = parseFloat(amountRetiro);
+                if (isNaN(numRetiro) || numRetiro <= 0 || numRetiro > estado.maxRetiro) {
+                    this.consola.print(`Monto fuera de límites de disposición.`, 'warning');
+                    numRetiro = -1;
+                }
+            }
+            return { tipo: 'RETIRO', monto: numRetiro };
         }
 
         return { tipo: opcion === '1' ? 'MINIMO' : opcion === '2' ? 'TOTAL' : 'CANCELAR' };
@@ -191,39 +265,92 @@ export class ControladorVista {
     }
 
     async mostrarMenuGasto(gasto, estado, puedeIgnorar, ventanaPagoAbierta) {
-        this.consola.print(`\n[¡GASTO!] Te enfrentas a un pago: ${gasto.nombre}`);
-        this.consola.print(`Categoría: ${gasto.categoria} | Monto: $${gasto.monto.toFixed(2)}`);
+        this.consola.print(`\n[¡ENFRENTAMIENTO EN ${gasto.localizacion}!] Gasto: ${gasto.nombre}`);
+        this.consola.print(`Categoría: ${gasto.categoria} | Monto Final: $${gasto.monto.toFixed(2)}`);
 
         let opciones = [];
         let descP = [];
 
         if (estado.efectivoDisponible >= gasto.monto) {
             opciones.push('d');
-            descP.push('d: Débito / Efectivo');
+            descP.push('d: Pagar Efectivo');
         }
 
         if (estado.creditoDisponible >= gasto.monto) {
             opciones.push('t');
-            descP.push('t: Tarjeta Credito');
+            descP.push('t: Pagar TDC');
+
+            if (gasto.aceptaMSI) {
+                opciones.push('m');
+                descP.push('m: Pagar con MSI');
+            }
         }
 
         if (puedeIgnorar) {
             opciones.push('i');
-            descP.push('i: Ignorar (Solo aplica a Gustos)');
+            descP.push('i: Ignorar (Solo Gustos)');
         }
 
-        // La opción p siempre aparece (se quitó la condicional de deuda)
-        opciones.push('p');
-        descP.push('p: Pagar Tarjeta (Abono Manual)');
+        opciones.push('s');
+        descP.push('s: Regresar (Posponer)');
 
-        if (opciones.length === 0) {
-            return null; // Indica que no puede pagar
+        if (opciones.length === 1 && opciones[0] === 's') {
+            // Check handled by Engine for Game Over, but just in case
         }
 
         this.consola.print(`Efectivo: $${estado.efectivoDisponible.toFixed(2)} | Crédito: $${estado.creditoDisponible.toFixed(2)}`);
-        this.consola.print(`¿Con qué pagas? -> ${descP.join(' | ')}`);
+        this.consola.print(`Acciones -> ${descP.join(' | ')}`);
 
         return await this.consola.prompt('Elige: ', opciones);
+    }
+
+    async mostrarSelectorMSI(opcionesCuotas) {
+        this.consola.print(`\n--- ELIGE EL PLAZO PARA MSI ---`);
+        let stringsOp = [];
+        let indexOp = [];
+
+        opcionesCuotas.forEach(cuota => {
+            if (cuota > 1) {
+                stringsOp.push(`[${cuota}] ${cuota} Meses`);
+                indexOp.push(cuota.toString());
+            }
+        });
+
+        this.consola.print(stringsOp.join(' | '));
+        const elegido = await this.consola.prompt('Elige el número de meses: ', indexOp);
+        return parseInt(elegido);
+    }
+
+    mostrarResolucionGastoMSI(cuotas) {
+        this.consola.print(`Compra exitosa a ${cuotas} Meses Sin Intereses.`, 'info');
+    }
+    
+    mostrarMensaje(msg) {
+        this.consola.print(msg, 'warning');
+    }
+    
+    mostrarGameOverInsolvenciaExtrema(gasto, stage, stats) {
+        this.consola.clear();
+        this.mostrarFinStage(stage, stats, false);
+        this.consola.print(`\n====================================`, 'error');
+        this.consola.print('!!!!!!! GAME OVER !!!!!!!', 'error');
+        this.consola.print(`CRISIS DE LIQUIDEZ: Requiriendo efectivo para ${gasto.nombre} ($${gasto.monto.toFixed(2)}) y no tienes solvencia ni crédito para rescatarlo.`, 'error');
+        this.consola.print('====================================\n', 'error');
+    }
+
+    async mostrarMenuDisposicionObligatoria(gasto, maxRetiro, comisionPct) {
+        this.consola.print(`\n[¡CRISIS DE LIQUIDEZ!]`, 'warning');
+        this.consola.print(`El gasto /${gasto.nombre}/ ($${gasto.monto.toFixed(2)}) ES SOLO EN EFECTIVO y no te alcanza en tu cartera.`, 'warning');
+        this.consola.print(`Tienes la posibilidad de retirar efectivo de tu TDC. Max disponible: $${maxRetiro.toFixed(2)}`, 'info');
+        this.consola.print(`Comision del retiro: ${(comisionPct*100).toFixed(0)}% + IVA`, 'error');
+        
+        const decision = await this.consola.prompt(`¿Deseas retirar dinero? Escribe el monto para salvar la semana u oprime Enter para perder el juego:`);
+        
+        let val = parseFloat(decision);
+        if (!isNaN(val) && val > 0) {
+             return { monto: val };
+        }
+        return null;
     }
     
     mostrarResolucionGastoDebito() {

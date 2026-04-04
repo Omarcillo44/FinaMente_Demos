@@ -305,18 +305,18 @@ Al llegar a `GAME_OVER` o `COMPLETADO`:
 | `stage` | Número de etapa (1–6) |
 | `semana` | Semana dentro del stage (1–4) |
 | `gasto` | Nombre del gasto enfrentado |
-| `metodoPago` | Método elegido por el jugador |
-| `usoLineaPct` | Porcentaje de uso del crédito al momento de la acción |
-| `scoreResultante` | Score crediticio tras la acción |
+| `metodoPago` | DÉBITO, TDC, MSI, IGNORADO |
+| `usoLineaPct` | % de uso de crédito en ese momento |
+| `scoreResultante` | Score después de la acción |
 
 ---
 
-## 12. Pendientes por Definir
+## 12. Pendientes por Definir (Actualizado)
 
 | Pendiente | Descripción |
 |---|---|
-| Catálogo de gastos | Montos base y rangos para Básicos, Gustos y Sorpresas por perfil y stage |
-| Elegibilidad MSI | Lista de tipos de gasto que aceptan MSI y límite máximo de plazos (hasta 12 MSI) |
+| Feedback IA | Configuración de prompts específicos para la retroalimentación de MSI y Gasto Hormiga |
+
 ```mermaid
 classDiagram
     class TarjetaCredito {
@@ -328,17 +328,26 @@ classDiagram
         +Number saldoInsoluto
         +Number interesesGenerados
         +CuotaMSI[] comprasMSI
+        +Number pagoAcumuladoMes
+        +Number efectivoDispuesto
         +tasaInteresMensual() Number
         +cargoNormal(monto Number)
-        +cargoMSI(monto Number, meses Number) Boolean
+        +cargoMSI(monto Number, cuotas Number) Boolean
+        +disponerEfectivo(monto Number) Boolean
         +calcularPagoMinimo() Number
+        +calcularPagoNoGenerarIntereses() Number
+        +calcularDeudaMSIPendiente() Number
+        +calcularUsoTotal() Number
         +aplicarCargoTardio() Number
+        +generarIntereses() void
         +recibirPago(monto Number)
+        +evaluarSiCumplioPagoMinimo(pagoMinimo Number) Boolean
+        +reiniciarCicloDePago() void
     }
 
     class CuotaMSI {
         +Number montoCuota
-        +Number mesesRestantes
+        +Number cuotasRestantes
     }
 
     class Jugador {
@@ -347,11 +356,13 @@ classDiagram
         +Number efectivoDisponible
         +TarjetaCredito tarjeta
         +Number scoreCrediticio
+        +Number calidadVida
         +calcularHP() Number
         +actualizarIngreso(nuevoIngreso Number)
         +pagarConDebito(monto Number)
         +comprarConTDC(monto Number)
-        +comprarConMSI(monto Number, meses Number) Boolean
+        +comprarConMSI(monto Number, cuotas Number) Boolean
+        +retirarEfectivoDeTDC(monto Number) Boolean
         +pagarDeudaTDC(monto Number) Boolean
         +modificarScore(puntos Number)
     }
@@ -362,6 +373,7 @@ classDiagram
         TRABAJADOR
         INDEPENDIENTE
         ESPORADICO
+        NINI
     }
 
     class ConfigPerfil {
@@ -393,7 +405,7 @@ classDiagram
     class GeneradorAleatorio {
         +generarIngresoEsporadico(config ConfigPerfil) Number
         +generarLimiteInicial(config ConfigPerfil) Number
-        +generarOleadaSemanal(config ConfigPerfil, semana Number) Gasto[]
+        +generarOleadaSemanal(config ConfigPerfil, semana Number, recurrentesFijos Gasto[]) Gasto[]
         +tirarEvento(config ConfigPerfil) Boolean
         +tirarTipoEvento(config ConfigPerfil) String
         +generarMontoGasto(tipo String, config ConfigPerfil) Number
@@ -404,6 +416,8 @@ classDiagram
         +String nombre
         +String categoria
         +Number monto
+        +String localizacion
+        +Number[] opcionesMSI
         +Boolean esObligatorio
         +Boolean aceptaMSI
         +calcularDano() Number
@@ -414,7 +428,8 @@ classDiagram
     class GastoBasico
 
     class GastoGusto {
-        +ignorar() void
+        +ignorar(jugador Jugador) void
+        +pagar(jugador Jugador) void
     }
 
     class GastoSorpresa
@@ -426,15 +441,17 @@ classDiagram
         +Number stageActual
         +Number semanaActual
         +EstadoJuegoEnum estadoJuego
-        +VentanaPagoEnum ventanaPago
+        +Gasto[] gastosRecurrentesFijos
         +AccionLog[] registroAuditoria
         +inicializarJugador(perfil PerfilEnum)
+        +generarRecurrentesFijos() void
+        +iniciarJuego(perfil PerfilEnum) void
         +iniciarStage() void
-        +generarOleadasStage() Gasto[]
-        +procesarEncuentro(gasto Gasto, metodo String) ResultadoEncuentro
+        +finalizarPartidaVoluntaria() void
+        +realizarOperacionesBancaMovil() void
+        +evaluarAumentoLinea() void
+        +procesarGasto(gasto Gasto)
         +registrarAccion(gasto Gasto, decision String)
-        +evaluarPago(montoPagado Number)
-        +avanzarVentana() void
         +evaluarGameOver() Boolean
         +exportarLog() AccionLog[]
     }
@@ -444,13 +461,6 @@ classDiagram
         EN_CURSO
         GAME_OVER
         COMPLETADO
-    }
-
-    class VentanaPagoEnum {
-        <<enumeration>>
-        ABIERTA
-        EXPIRADA
-        INMEDIATA
     }
 
     class ResultadoEncuentro {
@@ -486,6 +496,5 @@ classDiagram
     MotorJuego *-- AccionLog : registra
     MotorJuego ..> Gasto : genera y procesa
     MotorJuego ..> EstadoJuegoEnum : usa
-    MotorJuego ..> VentanaPagoEnum : usa
     MotorJuego ..> ResultadoEncuentro : retorna
 ```

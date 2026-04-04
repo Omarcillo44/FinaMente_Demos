@@ -79,9 +79,9 @@ export class Consola {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    updateHeader(hp, saldo, limite, efectivo, stage, semana) {
+    updateHeader(hp, saldo, limite, efectivo, cv, stage, semana) {
         this.hpBar.classList.remove('hidden');
-        this.hpValue.textContent = `HP: $${hp.toFixed(2)}`;
+        this.hpValue.textContent = `HP/Libre: $${hp.toFixed(2)} | CV: ${cv !== undefined ? Math.floor(cv) : 50}/100`;
         this.saldoValue.textContent = `$${saldo.toFixed(2)} / $${limite.toFixed(2)}`;
         this.efectivoValue.textContent = `$${efectivo.toFixed(2)}`;
         this.stageValue.textContent = stage;

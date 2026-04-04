@@ -9,6 +9,10 @@ export class TarjetaCredito {
         this.interesesGenerados = 0;
         this.comprasMSI = []; // Desactivado hasta que sepamos qué pedo con los MSI
         this.pagoAcumuladoMes = 0; // Para la fecha límite silenciosa
+        
+        this.limiteRetiroPct = config.limiteRetiroPct || 0;
+        this.comisionRetiroPct = config.comisionRetiroPct || 0;
+        this.efectivoDispuesto = 0;
     }
 
     tasaInteresMensual() {
@@ -17,10 +21,47 @@ export class TarjetaCredito {
 
     cargoNormal(monto) {
         if (monto > this.creditoDisponible) {
-            return false; // Sin crédito disponible, pero no significa gameover
+            return false;
         }
         this.creditoDisponible -= monto;
         this.saldoInsoluto += monto;
+        return true;
+    }
+
+    cargoMSI(monto, cuotas) {
+        if (monto > this.creditoDisponible || cuotas <= 1) {
+            return false;
+        }
+        this.creditoDisponible -= monto;
+        this.comprasMSI.push({
+            montoTotal: monto,
+            montoCuota: monto / cuotas,
+            cuotasRestantes: cuotas
+        });
+        return true;
+    }
+
+    calcularEfectivoDisponibleParaRetirar() {
+        const retiroMaxPermitido = (this.limiteCredito * this.limiteRetiroPct) - this.efectivoDispuesto;
+        if (retiroMaxPermitido <= 0) return 0;
+        // Evaluar también que el crédito disponible alcance (hay comisiones que luego se clavan extra, pero el base es este)
+        return Math.min(this.creditoDisponible, retiroMaxPermitido);
+    }
+
+    disponerEfectivo(monto) {
+        if (monto <= 0) return false;
+        
+        const disponible = this.calcularEfectivoDisponibleParaRetirar();
+        // Si el monto de capital a sacar supera el límite de disposición o crédito base
+        if (monto > disponible) return false;
+
+        const comision = monto * this.comisionRetiroPct;
+        const cargoTotal = monto + (comision * 1.16); // IVA del 16% sobre la comisión
+
+        // Puede resultar en crédito negativo si con comisión rompe el tope, pero se permite contablemente
+        this.efectivoDispuesto += monto; 
+        this.creditoDisponible -= cargoTotal;
+        this.saldoInsoluto += cargoTotal;
         return true;
     }
 
@@ -38,15 +79,32 @@ export class TarjetaCredito {
         const opcion1 = (0.015 * this.saldoInsoluto) + this.interesesGenerados + (this.interesesGenerados * 0.16);
         const opcion2 = 0.0125 * this.limiteCredito;
 
-        // Sumar MSI si estuvieran activados
-        const pagoMinimo = Math.max(opcion1, opcion2);
+        // Sumar cuotas de MSI del mes
+        const totalCuotasMSI = this.comprasMSI.reduce((sum, compra) => sum + compra.montoCuota, 0);
+
+        const pagoMinimo = Math.max(opcion1, opcion2) + totalCuotasMSI;
 
         /* 
         Si el pago mínimo es mayor a la deuda total (poco probable pero matemáticamente posible 
         si neta está muy wey para usar la tarjeta)
         */
-        const deudaStatus = this.saldoInsoluto + this.interesesGenerados + (this.interesesGenerados * 0.16);
+        const deudaStatus = this.saldoInsoluto + (this.interesesGenerados * 1.16) + this.calcularDeudaMSIPendiente();
         return Math.min(pagoMinimo, deudaStatus);
+    }
+
+    calcularDeudaMSIPendiente() {
+        return this.comprasMSI.reduce((sum, compra) => sum + (compra.montoCuota * compra.cuotasRestantes), 0);
+    }
+
+    calcularUsoTotal() {
+        // El uso considera tanto el saldo insoluto como la deuda pendiente de MSI
+        return (this.saldoInsoluto + this.calcularDeudaMSIPendiente()) / this.limiteCredito;
+    }
+
+    calcularPagoNoGenerarIntereses() {
+        // Saldo Insoluto + Intereses acumulados + IVA sobre intereses
+        const deudaStatus = this.saldoInsoluto + (this.interesesGenerados * 1.16);
+        return Math.max(0, deudaStatus);
     }
 
     aplicarCargoTardio() {
@@ -101,5 +159,17 @@ export class TarjetaCredito {
 
     reiniciarCicloDePago() {
         this.pagoAcumuladoMes = 0;
+        this.efectivoDispuesto = 0;
+
+        // Avanzar MSI: cobrar la cuota y liberar crédito proporcional
+        this.comprasMSI.forEach(compra => {
+            if (compra.cuotasRestantes > 0) {
+                compra.cuotasRestantes--;
+                this.creditoDisponible += compra.montoCuota; // Se libera conforme se "paga" en el corte
+            }
+        });
+
+        // Limpiar compras finalizadas
+        this.comprasMSI = this.comprasMSI.filter(compra => compra.cuotasRestantes > 0);
     }
 }

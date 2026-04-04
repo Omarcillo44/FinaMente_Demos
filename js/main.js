@@ -20,8 +20,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     consola.print(`2. ESPORADICO    (Ingresos variables, inestable)`);
     consola.print(`3. TRABAJADOR    (Ingreso $5000-$7000, gastos medios)`);
     consola.print(`4. INDEPENDIENTE (Ingreso fijo, fuertes gastos fijos)`);
+    consola.print(`5. NINI          (Ingreso $500-$2000, sin empleo ni estudios)`);
 
-    const opcion = await consola.prompt('Elige (1-4): ', ['1', '2', '3', '4']);
+    const opcion = await consola.prompt('Elige (1-5): ', ['1', '2', '3', '4', '5']);
 
     let perfilSeleccionado;
     switch(opcion) {
@@ -29,6 +30,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         case '2': perfilSeleccionado = PerfilEnum.ESPORADICO; break;
         case '3': perfilSeleccionado = PerfilEnum.TRABAJADOR; break;
         case '4': perfilSeleccionado = PerfilEnum.INDEPENDIENTE; break;
+        case '5': perfilSeleccionado = PerfilEnum.NINI; break;
     }
 
     consola.clear();

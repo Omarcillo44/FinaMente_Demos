@@ -31,32 +31,48 @@ export class GeneradorAleatorio {
     }
 
     static generarGastoAleatorio(perfilEnum, categoria, claseGasto) {
-        const opciones = CatalogoGastos.getGastosPorCategoria(perfilEnum, categoria);
+        let opciones = CatalogoGastos.getGastosPorCategoria(perfilEnum, categoria);
+        
+        if (perfilEnum === PerfilEnum.ESPORADICO || perfilEnum === PerfilEnum.NINI) {
+            opciones = opciones.filter(opcion => {
+                const locs = Object.keys(opcion.localizaciones || {}).filter(loc => loc !== 'ESCUELA');
+                return locs.length > 0;
+            });
+        }
         if (!opciones || opciones.length === 0) return null;
         
         const idx = Math.floor(Math.random() * opciones.length);
         const data = opciones[idx];
-        return new claseGasto(data);
+
+        let localizaciones = Object.keys(data.localizaciones || {});
+        if (perfilEnum === PerfilEnum.ESPORADICO || perfilEnum === PerfilEnum.NINI) {
+            localizaciones = localizaciones.filter(loc => loc !== 'ESCUELA');
+        }
+        
+        let locElegida = null;
+        let modMonto = 1.0;
+        
+        if (localizaciones.length > 0) {
+            locElegida = localizaciones[Math.floor(Math.random() * localizaciones.length)];
+            modMonto = data.localizaciones[locElegida].modMonto || 1.0;
+        }
+
+        return new claseGasto({
+            ...data,
+            localizacion: locElegida,
+            montoFinal: data.monto * modMonto
+        });
     }
 
-    static generarOleadaSemanal(config, semana) {
+    static generarOleadaSemanal(config, semana, recurrentesFijos = []) {
         const estructuraObj = config.estructuraSemanal.find(e => e.semana === semana);
         if (!estructuraObj) return [];
 
         const gastos = [];
 
-        // Recurrentes
-        let numRecurrentes = 0;
-        if (estructuraObj.recurrentes === 'ALL') {
-            const catalogo = CatalogoGastos.getGastosPorCategoria(config.perfil, "Recurrente");
-            numRecurrentes = Math.min(catalogo.length, this.randomBetween(config.recurrentesMin, config.recurrentesMax));
-        } else {
-            numRecurrentes = parseInt(estructuraObj.recurrentes) || 0;
-        }
-
-        for (let i = 0; i < numRecurrentes; i++) {
-            const g = this.generarGastoAleatorio(config.perfil, "Recurrente", GastoRecurrente);
-            if (g) gastos.push(g);
+        // Recurrentes (Ahora inyectados desde MotorJuego)
+        if (recurrentesFijos && recurrentesFijos.length > 0) {
+            gastos.push(...recurrentesFijos);
         }
 
         // Basicos

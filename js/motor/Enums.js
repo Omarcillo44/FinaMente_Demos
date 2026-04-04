@@ -2,7 +2,8 @@ export const PerfilEnum = {
     DEPENDIENTE: 'DEPENDIENTE',
     TRABAJADOR: 'TRABAJADOR',
     INDEPENDIENTE: 'INDEPENDIENTE',
-    ESPORADICO: 'ESPORADICO'
+    ESPORADICO: 'ESPORADICO',
+    NINI: 'NINI'
 };
 
 export const EstadoJuegoEnum = {
@@ -11,3 +12,12 @@ export const EstadoJuegoEnum = {
     COMPLETADO: 'COMPLETADO'
 };
 
+export const LocalizacionEnum = {
+    ESCUELA: 'ESCUELA',
+    TRANSPORTE: 'TRANSPORTE',
+    CONSULTORIO: 'CONSULTORIO',
+    CENTRO_COMERCIAL: 'CENTRO_COMERCIAL',
+    RECAMARA: 'RECAMARA',
+    SUPERMERCADO: 'SUPERMERCADO',
+    CASA_OFICINA: 'CASA_OFICINA'
+};

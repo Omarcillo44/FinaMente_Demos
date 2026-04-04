@@ -1,17 +1,11 @@
-/*
-* JSON para acceder al catálogo de gastos por personaje y categoría
-* Los elementos pueden cambiar de valor, pero no pueden reasignarse,
-* es decir, no pueden cambiar el nombre del atributo ni su tipo de contenido
-*/
-
-export const catalogoGastosDatos = {
+{
   "DEPENDIENTE": [
     {
       "nombre": "Recarga Telcel",
       "categoria": "Recurrente",
-      "monto": 200,
+      "monto": 150,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -20,9 +14,42 @@ export const catalogoGastosDatos = {
     {
       "nombre": "Spotify Premium",
       "categoria": "Recurrente",
-      "monto": 219,
+      "monto": 129,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
+      "aceptaTDC": true,
+      "localizaciones": {
+        "RECAMARA": { "modMonto": 1.0 }
+      }
+    },
+    {
+      "nombre": "Netflix Básico",
+      "categoria": "Recurrente",
+      "monto": 99,
+      "esObligatorio": true,
+      "aceptaMSI": false,
+      "aceptaTDC": true,
+      "localizaciones": {
+        "RECAMARA": { "modMonto": 1.0 }
+      }
+    },
+    {
+      "nombre": "PS Plus / Xbox Live",
+      "categoria": "Recurrente",
+      "monto": 170,
+      "esObligatorio": true,
+      "aceptaMSI": false,
+      "aceptaTDC": true,
+      "localizaciones": {
+        "RECAMARA": { "modMonto": 1.0 }
+      }
+    },
+    {
+      "nombre": "Canva Pro",
+      "categoria": "Recurrente",
+      "monto": 149,
+      "esObligatorio": true,
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -31,56 +58,9 @@ export const catalogoGastosDatos = {
     {
       "nombre": "Pasajes de la semana",
       "categoria": "Básico",
-      "monto": 135,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
-        "TRANSPORTE": { "modMonto": 1.0 },
-        "ESCUELA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Comidas en cafetería",
-      "categoria": "Básico",
-      "monto": 135,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "ESCUELA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Copias y engargolados",
-      "categoria": "Básico",
-      "monto": 135,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "ESCUELA": { "modMonto": 1.0 },
-        "SUPERMERCADO": { "modMonto": 0.9 }
-      }
-    },
-    {
-      "nombre": "Material escolar",
-      "categoria": "Básico",
-      "monto": 135,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "ESCUELA": { "modMonto": 1.0 },
-        "SUPERMERCADO": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Pasajes de la semana",
-      "categoria": "Básico",
       "monto": 250,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "TRANSPORTE": { "modMonto": 1.0 },
@@ -92,7 +72,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 300,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "ESCUELA": { "modMonto": 1.0 }
@@ -103,7 +83,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 100,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "ESCUELA": { "modMonto": 1.0 },
@@ -115,7 +95,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 200,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "ESCUELA": { "modMonto": 1.0 },
@@ -127,7 +107,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 150,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "ESCUELA": { "modMonto": 1.0 },
@@ -139,7 +119,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 250,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -151,7 +131,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 150,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -162,7 +142,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 120,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -174,7 +154,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 300,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -186,7 +166,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 180,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -198,7 +178,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 150,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 },
@@ -210,7 +190,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 120,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "TRANSPORTE": { "modMonto": 1.0 }
@@ -221,7 +201,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 100,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "ESCUELA": { "modMonto": 1.0 },
@@ -233,7 +213,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 180,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "ESCUELA": { "modMonto": 1.0 }
@@ -244,7 +224,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 200,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CONSULTORIO": { "modMonto": 1.0 }
@@ -257,7 +237,18 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 399,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
+      "aceptaTDC": true,
+      "localizaciones": {
+        "RECAMARA": { "modMonto": 1.0 }
+      }
+    },
+    {
+      "nombre": "Suscripción Gym",
+      "categoria": "Recurrente",
+      "monto": 400,
+      "esObligatorio": true,
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -268,7 +259,18 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 450,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
+      "aceptaTDC": true,
+      "localizaciones": {
+        "RECAMARA": { "modMonto": 1.0 }
+      }
+    },
+    {
+      "nombre": "Bundle Streaming",
+      "categoria": "Recurrente",
+      "monto": 250,
+      "esObligatorio": true,
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -279,78 +281,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 500,
       "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "CASA_OFICINA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Suscripción Gym",
-      "categoria": "Recurrente",
-      "monto": 400,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "RECAMARA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Transporte / Gasolina",
-      "categoria": "Básico",
-      "monto": 290,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "TRANSPORTE": { "modMonto": 1.0 },
-        "CASA_OFICINA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Despensa personal",
-      "categoria": "Básico",
-      "monto": 290,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "SUPERMERCADO": { "modMonto": 1.0 },
-        "CASA_OFICINA": { "modMonto": 1.15 }
-      }
-    },
-    {
-      "nombre": "Comidas cerca de oficina",
-      "categoria": "Básico",
-      "monto": 290,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "CENTRO_COMERCIAL": { "modMonto": 1.0 },
-        "CASA_OFICINA": { "modMonto": 1.15 }
-      }
-    },
-    {
-      "nombre": "Útiles y certificaciones",
-      "categoria": "Básico",
-      "monto": 290,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "ESCUELA": { "modMonto": 1.0 },
-        "SUPERMERCADO": { "modMonto": 0.9 },
-        "CASA_OFICINA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Aporte extra de limpieza",
-      "categoria": "Básico",
-      "monto": 290,
-      "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
@@ -361,7 +292,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 450,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "TRANSPORTE": { "modMonto": 1.0 },
@@ -373,7 +304,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 600,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "SUPERMERCADO": { "modMonto": 1.0 },
@@ -385,7 +316,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 550,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -397,7 +328,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 300,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "ESCUELA": { "modMonto": 1.0 },
@@ -410,7 +341,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 250,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
@@ -421,7 +352,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 800,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -433,7 +364,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 650,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -445,7 +376,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 1200,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 },
@@ -457,7 +388,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 450,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -469,7 +400,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 500,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -481,7 +412,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 1200,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 },
@@ -493,7 +424,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 800,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CONSULTORIO": { "modMonto": 1.0 }
@@ -504,7 +435,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 600,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
@@ -515,7 +446,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 450,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -527,7 +458,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 250,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "TRANSPORTE": { "modMonto": 1.0 }
@@ -538,9 +469,9 @@ export const catalogoGastosDatos = {
     {
       "nombre": "Renta de departamento",
       "categoria": "Recurrente",
-      "monto": 2300,
+      "monto": 3500,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 },
@@ -550,12 +481,23 @@ export const catalogoGastosDatos = {
     {
       "nombre": "Servicios (Agua, Luz, Gas)",
       "categoria": "Recurrente",
-      "monto": 550,
+      "monto": 600,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
+      }
+    },
+    {
+      "nombre": "Plan Celular Premium",
+      "categoria": "Recurrente",
+      "monto": 499,
+      "esObligatorio": true,
+      "aceptaMSI": false,
+      "aceptaTDC": true,
+      "localizaciones": {
+        "RECAMARA": { "modMonto": 1.0 }
       }
     },
     {
@@ -563,7 +505,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 550,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -574,7 +516,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 600,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -583,9 +525,9 @@ export const catalogoGastosDatos = {
     {
       "nombre": "Despensa quincenal",
       "categoria": "Básico",
-      "monto": 350,
+      "monto": 1200,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "SUPERMERCADO": { "modMonto": 1.0 },
@@ -597,7 +539,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 800,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "TRANSPORTE": { "modMonto": 1.0 },
@@ -609,7 +551,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 350,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "SUPERMERCADO": { "modMonto": 1.0 },
@@ -621,7 +563,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 700,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -633,7 +575,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 450,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "SUPERMERCADO": { "modMonto": 1.0 },
@@ -645,7 +587,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 1500,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -657,7 +599,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 1200,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -669,7 +611,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 900,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -681,7 +623,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 2200,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -693,7 +635,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 850,
       "esObligatorio": false,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -705,7 +647,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 1800,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CONSULTORIO": { "modMonto": 1.0 }
@@ -716,7 +658,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 1500,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 },
@@ -728,7 +670,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 800,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
@@ -739,7 +681,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 950,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CONSULTORIO": { "modMonto": 1.0 }
@@ -750,7 +692,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 2500,
       "esObligatorio": true,
-      "MSI": [1, 3, 6],
+      "aceptaMSI": true,
       "aceptaTDC": true,
       "localizaciones": {
         "CONSULTORIO": { "modMonto": 1.0 },
@@ -764,7 +706,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 100,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -775,7 +717,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 69,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -786,7 +728,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 50,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -797,7 +739,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 20,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -808,7 +750,7 @@ export const catalogoGastosDatos = {
       "categoria": "Recurrente",
       "monto": 80,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -817,9 +759,9 @@ export const catalogoGastosDatos = {
     {
       "nombre": "Pasajes en bus",
       "categoria": "Básico",
-      "monto": 65,
+      "monto": 180,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "TRANSPORTE": { "modMonto": 1.0 }
@@ -830,7 +772,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 120,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 }
@@ -841,7 +783,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 60,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "SUPERMERCADO": { "modMonto": 0.9 },
@@ -853,7 +795,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 200,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
@@ -864,7 +806,7 @@ export const catalogoGastosDatos = {
       "categoria": "Básico",
       "monto": 100,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "SUPERMERCADO": { "modMonto": 1.0 },
@@ -876,7 +818,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 100,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -888,7 +830,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 60,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -900,7 +842,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 150,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -912,7 +854,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 180,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
@@ -924,7 +866,7 @@ export const catalogoGastosDatos = {
       "categoria": "Gusto",
       "monto": 90,
       "esObligatorio": false,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "RECAMARA": { "modMonto": 1.0 }
@@ -935,7 +877,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 80,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "TRANSPORTE": { "modMonto": 1.0 }
@@ -946,7 +888,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 120,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CONSULTORIO": { "modMonto": 1.0 },
@@ -958,7 +900,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 100,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 },
@@ -970,7 +912,7 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 70,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": false,
       "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
@@ -981,121 +923,12 @@ export const catalogoGastosDatos = {
       "categoria": "Sorpresa",
       "monto": 150,
       "esObligatorio": true,
-      "MSI": [1],
+      "aceptaMSI": false,
       "aceptaTDC": true,
       "localizaciones": {
         "CENTRO_COMERCIAL": { "modMonto": 1.0 },
-        "CASA_OFICINA": { "modMonto": 1.0 }
-      }
-    }
-  ],
-  "NINI": [
-    {
-      "nombre": "Recarga Telcel",
-      "categoria": "Recurrente",
-      "monto": 50,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "RECAMARA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Pasajes de la semana",
-      "categoria": "Básico",
-      "monto": 70,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
-        "TRANSPORTE": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Comidas en cafetería",
-      "categoria": "Básico",
-      "monto": 70,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
-        "CENTRO_COMERCIAL": { "modMonto": 1.0 },
-        "RECAMARA": { "modMonto": 1.2 }
-      }
-    },
-    {
-      "nombre": "Copias y engargolados",
-      "categoria": "Básico",
-      "monto": 65,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
-        "ESCUELA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Material escolar",
-      "categoria": "Básico",
-      "monto": 65,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
-        "SUPERMERCADO": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Camiseta nueva",
-      "categoria": "Gusto",
-      "monto": 150,
-      "esObligatorio": false,
-      "MSI": [1],
-      "aceptaTDC": true,
-      "localizaciones": {
-        "RECAMARA": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Salida por tacos",
-      "categoria": "Gusto",
-      "monto": 100,
-      "esObligatorio": false,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
-        "CENTRO_COMERCIAL": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Taxi por lluvia",
-      "categoria": "Sorpresa",
-      "monto": 80,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
-        "TRANSPORTE": { "modMonto": 1.0 }
-      }
-    },
-    {
-      "nombre": "Cooperación imprevista",
-      "categoria": "Sorpresa",
-      "monto": 50,
-      "esObligatorio": true,
-      "MSI": [1],
-      "aceptaTDC": false,
-      "localizaciones": {
         "CASA_OFICINA": { "modMonto": 1.0 }
       }
     }
   ]
-};
-
-export class CatalogoGastos {
-  static getGastosPorCategoria(perfilEnum, categoria) {
-    const gastos = catalogoGastosDatos[perfilEnum];
-    return gastos.filter(g => g.categoria === categoria);
-  }
 }
