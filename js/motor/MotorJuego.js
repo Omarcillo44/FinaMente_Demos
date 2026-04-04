@@ -409,15 +409,7 @@ export class MotorJuego {
                 this.vista.mostrarResolucionGastoCredito();
 
                 // Calidad de Vida por los gustos comprados en combo
-                [...batalla.gastos].forEach(g => {
-                    if (g instanceof GastoGusto) {
-                        const montoG = g.montoModificado !== undefined ? g.montoModificado : g.monto;
-                        const pts = Math.max(1, Math.floor(montoG / 50));
-                        this.jugador.modificarCalidadVida(+pts);
-                        this.vista.mostrarCambioCalidadVida(+pts, this.jugador.calidadVida);
-                        this.mensajesRetroalimentacion.push(`+${pts} CV: Disfrutaste "${g.nombre}".`);
-                    }
-                });
+                [...batalla.gastos].forEach(g => this.procesarEfectoCalidadVida(g));
 
                 // Limpiar gastos comprados
                 [...batalla.gastos].forEach(g => batalla.eliminarDePool(g));
@@ -437,15 +429,7 @@ export class MotorJuego {
                 this.vista.mostrarResolucionGastoDebito();
 
                 // Calidad de Vida por los gustos comprados en combo
-                gastosCombo.forEach(g => {
-                    if (g instanceof GastoGusto) {
-                        const montoG = g.montoModificado !== undefined ? g.montoModificado : g.monto;
-                        const pts = Math.max(1, Math.floor(montoG / 50));
-                        this.jugador.modificarCalidadVida(+pts);
-                        this.vista.mostrarCambioCalidadVida(+pts, this.jugador.calidadVida);
-                        this.mensajesRetroalimentacion.push(`+${pts} CV: Disfrutaste "${g.nombre}".`);
-                    }
-                });
+                gastosCombo.forEach(g => this.procesarEfectoCalidadVida(g));
 
                 gastosCombo.forEach(g => batalla.eliminarDePool(g));
                 break;
@@ -506,17 +490,8 @@ export class MotorJuego {
         }
 
         // Calidad de Vida: solo aplica a gustos pagados o ignorados
-        if (resuelto && gasto instanceof GastoGusto) {
-            const puntosCDV = Math.max(1, Math.floor(montoActivo / 50));
-            if (decision === 'i') {
-                this.jugador.modificarCalidadVida(-puntosCDV);
-                this.vista.mostrarCambioCalidadVida(-puntosCDV, this.jugador.calidadVida);
-                this.mensajesRetroalimentacion.push(`-${puntosCDV} CV: Te saltaste "${gasto.nombre}".`);
-            } else {
-                this.jugador.modificarCalidadVida(+puntosCDV);
-                this.vista.mostrarCambioCalidadVida(+puntosCDV, this.jugador.calidadVida);
-                this.mensajesRetroalimentacion.push(`+${puntosCDV} CV: Disfrutaste "${gasto.nombre}".`);
-            }
+        if (resuelto) {
+            this.procesarEfectoCalidadVida(gasto, decision === 'i');
         }
 
         if (resuelto && batallaContext) {
@@ -524,6 +499,22 @@ export class MotorJuego {
         } else if (resuelto && !batallaContext) {
             const idx = this.poolGastosSemana.indexOf(gasto);
             if (idx > -1) this.poolGastosSemana.splice(idx, 1);
+        }
+    }
+
+    procesarEfectoCalidadVida(gasto, esIgnorado = false) {
+        if (!(gasto instanceof GastoGusto)) return;
+        const montoG = gasto.montoModificado !== undefined ? gasto.montoModificado : gasto.monto;
+        const pts = Math.max(1, Math.floor(montoG / 75));
+        
+        if (esIgnorado) {
+            this.jugador.modificarCalidadVida(-pts);
+            this.vista.mostrarCambioCalidadVida(-pts, this.jugador.calidadVida);
+            this.mensajesRetroalimentacion.push(`-${pts} CV: Te saltaste "${gasto.nombre}".`);
+        } else {
+            this.jugador.modificarCalidadVida(+pts);
+            this.vista.mostrarCambioCalidadVida(+pts, this.jugador.calidadVida);
+            this.mensajesRetroalimentacion.push(`+${pts} CV: Disfrutaste "${gasto.nombre}".`);
         }
     }
 }
