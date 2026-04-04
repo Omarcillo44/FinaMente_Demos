@@ -19,7 +19,8 @@ export class Consola {
                 
                 if (this.inputResolver) {
                     if (command) {
-                        this.print(`> ${command}`, 'user-input');
+                        const escapedCmd = command.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                        this.print(`> ${escapedCmd}`, 'user-input');
                     } else {
                         this.print(`> [ENTER]`, 'user-input');
                     }
@@ -31,12 +32,19 @@ export class Consola {
                 }
             }
         });
+
+        // Asegurar que el input recupere el foco al dar clic en cualquier parte
+        document.addEventListener('click', () => {
+            if (!this.inputField.disabled) {
+                this.inputField.focus();
+            }
+        });
     }
 
     print(text, styleClass = 'system') {
         const line = document.createElement('div');
         line.className = `line ${styleClass}`;
-        line.textContent = text;
+        line.innerHTML = text;
         this.outputDiv.appendChild(line);
         this.scrollToBottom();
     }
@@ -76,6 +84,10 @@ export class Consola {
     }
 
     async sleep(ms) {
+        // Evitamos retrasos extremos si el usuario cambia de pestaña
+        if (document.hidden) {
+            return Promise.resolve();
+        }
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
